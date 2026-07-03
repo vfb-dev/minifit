@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}{{ workout.title }} | MiniFit{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'tracker:workout_list' %}" class="btn btn-outline-secondary btn-sm">Back to workouts</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h1 class="h3">{{ workout.title }}</h1>
+        <p class="text-muted mb-2">{{ workout.date }}</p>
+
+        {% if workout.notes %}
+            <p>{{ workout.notes }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<h2 class="h5 mb-3">Sets</h2>
+
+{% if workout.sets.all %}
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Exercise</th>
+                    <th>Set</th>
+                    <th>Reps</th>
+                    <th>Weight</th>
+                    <th>Duration</th>
+                    <th>Distance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for set in workout.sets.all %}
+                    <tr>
+                        <td>{{ set.exercise.name }}</td>
+                        <td>{{ set.set_number }}</td>
+                        <td>{{ set.reps|default:"-" }}</td>
+                        <td>{% if set.weight_kg %}{{ set.weight_kg }} kg{% else %}-{% endif %}</td>
+                        <td>{% if set.duration_minutes %}{{ set.duration_minutes }} min{% else %}-{% endif %}</td>
+                        <td>{% if set.distance_km %}{{ set.distance_km }} km{% else %}-{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info">No sets added for this workout yet.</div>
+{% endif %}
+{% endblock %}
