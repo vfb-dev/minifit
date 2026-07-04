@@ -9,7 +9,7 @@ from .models import Workout
 from django.shortcuts import redirect
 from django.utils import timezone
 
-from .forms import WorkoutForm
+from .forms import WorkoutForm, WorkoutSetForm
 
 @login_required
 def dashboard(request):
@@ -67,5 +67,30 @@ def workout_create(request):
         "tracker/workout_form.html",
         {
             "form": form,
+        },
+    )
+
+@login_required
+def workout_set_create(request, pk):
+    workout = get_object_or_404(Workout, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        form = WorkoutSetForm(request.POST)
+
+        if form.is_valid():
+            workout_set = form.save(commit=False)
+            workout_set.workout = workout
+            workout_set.save()
+            return redirect("tracker:workout_detail", pk=workout.pk)
+    else:
+        next_set_number = workout.sets.count() + 1
+        form = WorkoutSetForm(initial={"set_number": next_set_number})
+
+    return render(
+        request,
+        "tracker/workout_set_form.html",
+        {
+            "form": form,
+            "workout": workout,
         },
     )

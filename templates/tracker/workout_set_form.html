@@ -1,0 +1,62 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}Add Set | MiniFit{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'tracker:workout_detail' workout.pk %}" class="btn btn-outline-secondary btn-sm">Back to workout</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h1 class="h3 mb-1">Add Set</h1>
+        <p class="text-muted mb-4">{{ workout.title }} - {{ workout.date }}</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.exercise.id_for_label }}">Exercise</label>
+                {{ form.exercise }}
+                {{ form.exercise.errors }}
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label" for="{{ form.set_number.id_for_label }}">Set Number</label>
+                    {{ form.set_number }}
+                    {{ form.set_number.errors }}
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label" for="{{ form.reps.id_for_label }}">Reps</label>
+                    {{ form.reps }}
+                    {{ form.reps.errors }}
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label" for="{{ form.weight_kg.id_for_label }}">Weight kg</label>
+                    {{ form.weight_kg }}
+                    {{ form.weight_kg.errors }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label" for="{{ form.duration_minutes.id_for_label }}">Duration minutes</label>
+                    {{ form.duration_minutes }}
+                    {{ form.duration_minutes.errors }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label" for="{{ form.distance_km.id_for_label }}">Distance km</label>
+                    {{ form.distance_km }}
+                    {{ form.distance_km.errors }}
+                </div>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Save Set</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

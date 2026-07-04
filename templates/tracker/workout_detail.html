@@ -18,7 +18,10 @@
     </div>
 </div>
 
-<h2 class="h5 mb-3">Sets</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 mb-0">Sets</h2>
+    <a href="{% url 'tracker:workout_set_create' workout.pk %}" class="btn btn-primary btn-sm">Add Set</a>
+</div>
 
 {% if workout.sets.all %}
     <div class="table-responsive">
