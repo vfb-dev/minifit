@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 
-from .models import BodyMetric, Exercise, Workout
+from .models import BodyMetric, Exercise, Workout, WorkoutSet
 
 from django.shortcuts import redirect
 from django.utils import timezone
@@ -13,8 +13,13 @@ from .forms import BodyMetricForm, ExerciseForm, WorkoutForm, WorkoutSetForm
 
 @login_required
 def dashboard(request):
-    recent_workouts = Workout.objects.filter(user=request.user)[:5]
-    workout_count = Workout.objects.filter(user=request.user).count()
+    workouts = Workout.objects.filter(user=request.user)
+    recent_workouts = workouts[:5]
+
+    workout_count = workouts.count()
+    total_sets = WorkoutSet.objects.filter(workout__user=request.user).count()
+    exercise_count = Exercise.objects.count()
+    latest_metric = BodyMetric.objects.filter(user=request.user).first()
 
     return render(
         request,
@@ -22,6 +27,9 @@ def dashboard(request):
         {
             "recent_workouts": recent_workouts,
             "workout_count": workout_count,
+            "total_sets": total_sets,
+            "exercise_count": exercise_count,
+            "latest_metric": latest_metric,
         },
     )
 
