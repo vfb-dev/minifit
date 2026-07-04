@@ -1,0 +1,23 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}Delete Workout | MiniFit{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="h3 mb-3">Delete Workout</h1>
+
+        <p>
+            Are you sure you want to delete
+            <strong>{{ workout.title }}</strong>
+            from {{ workout.date }}?
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit">Yes, Delete</button>
+            <a href="{% url 'tracker:workout_detail' workout.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

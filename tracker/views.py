@@ -79,6 +79,45 @@ def workout_create(request):
     )
 
 @login_required
+def workout_update(request, pk):
+    workout = get_object_or_404(Workout, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        form = WorkoutForm(request.POST, instance=workout)
+
+        if form.is_valid():
+            form.save()
+            return redirect("tracker:workout_detail", pk=workout.pk)
+    else:
+        form = WorkoutForm(instance=workout)
+
+    return render(
+        request,
+        "tracker/workout_form.html",
+        {
+            "form": form,
+            "workout": workout,
+            "is_editing": True,
+        },
+    )
+
+@login_required
+def workout_delete(request, pk):
+    workout = get_object_or_404(Workout, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        workout.delete()
+        return redirect("tracker:workout_list")
+
+    return render(
+        request,
+        "tracker/workout_confirm_delete.html",
+        {
+            "workout": workout,
+        },
+    )
+
+@login_required
 def workout_set_create(request, pk):
     workout = get_object_or_404(Workout, pk=pk, user=request.user)
 
