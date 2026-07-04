@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Workout, WorkoutSet
+from .models import Exercise, Workout, WorkoutSet
 
 
 class WorkoutForm(forms.ModelForm):
@@ -31,4 +31,13 @@ class WorkoutSetForm(forms.ModelForm):
             "weight_kg": forms.NumberInput(attrs={"class": "form-control", "step": "0.01"}),
             "duration_minutes": forms.NumberInput(attrs={"class": "form-control"}),
             "distance_km": forms.NumberInput(attrs={"class": "form-control", "step": "0.01"}),
+        }
+
+class ExerciseForm(forms.ModelForm):
+    class Meta:
+        model = Exercise
+        fields = ["name", "muscle_group"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "muscle_group": forms.Select(attrs={"class": "form-select"}),
         }

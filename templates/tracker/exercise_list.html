@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Exercises | MiniFit{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Exercises</h1>
+    <a href="{% url 'tracker:exercise_create' %}" class="btn btn-primary">Add Exercise</a>
+</div>
+
+{% if exercises %}
+    <div class="list-group">
+        {% for exercise in exercises %}
+            <div class="list-group-item">
+                <strong>{{ exercise.name }}</strong>
+                <span class="badge bg-secondary ms-2">{{ exercise.get_muscle_group_display }}</span>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">No exercises yet. Add your first one.</div>
+{% endif %}
+{% endblock %}

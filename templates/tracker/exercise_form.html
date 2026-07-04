@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Add Exercise | MiniFit{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'tracker:exercise_list' %}" class="btn btn-outline-secondary btn-sm">Back to exercises</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h1 class="h3 mb-4">Add Exercise</h1>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.name.id_for_label }}">Name</label>
+                {{ form.name }}
+                {{ form.name.errors }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.muscle_group.id_for_label }}">Muscle Group</label>
+                {{ form.muscle_group }}
+                {{ form.muscle_group.errors }}
+            </div>
+
+            <button class="btn btn-primary" type="submit">Save Exercise</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

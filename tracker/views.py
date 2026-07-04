@@ -4,12 +4,12 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 
-from .models import Workout
+from .models import Exercise, Workout
 
 from django.shortcuts import redirect
 from django.utils import timezone
 
-from .forms import WorkoutForm, WorkoutSetForm
+from .forms import ExerciseForm, WorkoutForm, WorkoutSetForm
 
 @login_required
 def dashboard(request):
@@ -92,5 +92,36 @@ def workout_set_create(request, pk):
         {
             "form": form,
             "workout": workout,
+        },
+    )
+
+@login_required
+def exercise_list(request):
+    exercises = Exercise.objects.order_by("name")
+
+    return render(
+        request,
+        "tracker/exercise_list.html",
+        {
+            "exercises": exercises,
+        },
+    )
+
+@login_required
+def exercise_create(request):
+    if request.method == "POST":
+        form = ExerciseForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect("tracker:exercise_list")
+    else:
+        form = ExerciseForm()
+
+    return render(
+        request,
+        "tracker/exercise_form.html",
+        {
+            "form": form,
         },
     )
