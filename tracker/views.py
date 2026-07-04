@@ -6,6 +6,11 @@ from django.shortcuts import get_object_or_404, render
 
 from .models import Workout
 
+from django.shortcuts import redirect
+from django.utils import timezone
+
+from .forms import WorkoutForm
+
 @login_required
 def dashboard(request):
     recent_workouts = Workout.objects.filter(user=request.user)[:5]
@@ -41,5 +46,26 @@ def workout_detail(request, pk):
         "tracker/workout_detail.html",
         {
             "workout": workout,
+        },
+    )
+
+@login_required
+def workout_create(request):
+    if request.method == "POST":
+        form = WorkoutForm(request.POST)
+
+        if form.is_valid():
+            workout = form.save(commit=False)
+            workout.user = request.user
+            workout.save()
+            return redirect("tracker:workout_detail", pk=workout.pk)
+    else:
+        form = WorkoutForm(initial={"date": timezone.localdate()})
+
+    return render(
+        request,
+        "tracker/workout_form.html",
+        {
+            "form": form,
         },
     )
