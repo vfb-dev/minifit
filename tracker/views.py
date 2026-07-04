@@ -4,12 +4,12 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 
-from .models import Exercise, Workout
+from .models import BodyMetric, Exercise, Workout
 
 from django.shortcuts import redirect
 from django.utils import timezone
 
-from .forms import ExerciseForm, WorkoutForm, WorkoutSetForm
+from .forms import BodyMetricForm, ExerciseForm, WorkoutForm, WorkoutSetForm
 
 @login_required
 def dashboard(request):
@@ -124,4 +124,33 @@ def exercise_create(request):
         {
             "form": form,
         },
+    )
+
+@login_required
+def body_metric_list(request):
+    metrics = BodyMetric.objects.filter(user=request.user)
+
+    return render(
+        request,
+        "tracker/body_metric_list.html",
+        {"metrics": metrics},
+    )
+
+@login_required
+def body_metric_create(request):
+    if request.method == "POST":
+        form = BodyMetricForm(request.POST)
+
+        if form.is_valid():
+            metric = form.save(commit=False)
+            metric.user = request.user
+            metric.save()
+            return redirect("tracker:body_metric_list")
+    else:
+        form = BodyMetricForm(initial={"date": timezone.localdate()})
+
+    return render(
+        request,
+        "tracker/body_metric_form.html",
+        {"form": form},
     )

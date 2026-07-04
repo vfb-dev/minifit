@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Exercise, Workout, WorkoutSet
+from .models import BodyMetric, Exercise, Workout, WorkoutSet
 
 
 class WorkoutForm(forms.ModelForm):
@@ -40,4 +40,15 @@ class ExerciseForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
             "muscle_group": forms.Select(attrs={"class": "form-select"}),
+        }
+
+class BodyMetricForm(forms.ModelForm):
+    class Meta:
+        model = BodyMetric
+        fields = ["date", "weight_kg", "body_fat_percentage", "notes"]
+        widgets = {
+            "date": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+            "weight_kg": forms.NumberInput(attrs={"class": "form-control", "step": "0.01"}),
+            "body_fat_percentage": forms.NumberInput(attrs={"class": "form-control", "step": "0.01"}),
+            "notes": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
         }

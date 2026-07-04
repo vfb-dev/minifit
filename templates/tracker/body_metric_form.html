@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Add Body Metric | MiniFit{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'tracker:body_metric_list' %}" class="btn btn-outline-secondary btn-sm">Back to metrics</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h1 class="h3 mb-4">Add Body Metric</h1>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn btn-primary" type="submit">Save Metric</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
