@@ -16,6 +16,7 @@
                 <th>Weight</th>
                 <th>Body Fat</th>
                 <th>Notes</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -25,6 +26,12 @@
                     <td>{{ metric.weight_kg }} kg</td>
                     <td>{% if metric.body_fat_percentage %}{{ metric.body_fat_percentage }}%{% else %}-{% endif %}</td>
                     <td>{{ metric.notes|default:"-" }}</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'tracker:body_metric_update' metric.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
+                            <a href="{% url 'tracker:body_metric_delete' metric.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                        </div>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

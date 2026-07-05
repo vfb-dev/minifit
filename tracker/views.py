@@ -282,3 +282,43 @@ def body_metric_create(request):
         "tracker/body_metric_form.html",
         {"form": form},
     )
+
+@login_required
+def body_metric_update(request, pk):
+    metric = get_object_or_404(BodyMetric, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        form = BodyMetricForm(request.POST, instance=metric)
+
+        if form.is_valid():
+            form.save()
+            return redirect("tracker:body_metric_list")
+    else:
+        form = BodyMetricForm(instance=metric)
+
+    return render(
+        request,
+        "tracker/body_metric_form.html",
+        {
+            "form": form,
+            "metric": metric,
+            "is_editing": True,
+        },
+    )
+
+
+@login_required
+def body_metric_delete(request, pk):
+    metric = get_object_or_404(BodyMetric, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        metric.delete()
+        return redirect("tracker:body_metric_list")
+
+    return render(
+        request,
+        "tracker/body_metric_confirm_delete.html",
+        {
+            "metric": metric,
+        },
+    )

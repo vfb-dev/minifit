@@ -18,6 +18,8 @@ urlpatterns = [
     path("exercises/<int:pk>/delete/", views.exercise_delete, name="exercise_delete"),
     path("metrics/", views.body_metric_list, name="body_metric_list"),
     path("metrics/add/", views.body_metric_create, name="body_metric_create"),
+    path("metrics/<int:pk>/edit/", views.body_metric_update, name="body_metric_update"),
+    path("metrics/<int:pk>/delete/", views.body_metric_delete, name="body_metric_delete"),
     path("sets/<int:pk>/edit/", views.workout_set_update, name="workout_set_update"),
     path("sets/<int:pk>/delete/", views.workout_set_delete, name="workout_set_delete"),
 ]

@@ -9,12 +9,38 @@
 
 <div class="card">
     <div class="card-body">
-        <h1 class="h3 mb-4">Add Body Metric</h1>
+        <h1 class="h3 mb-4">{% if is_editing %}Edit Body Metric{% else %}Add Body Metric{% endif %}</h1>
 
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button class="btn btn-primary" type="submit">Save Metric</button>
+
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.date.id_for_label }}">Date</label>
+                {{ form.date }}
+                {{ form.date.errors }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.weight_kg.id_for_label }}">Weight kg</label>
+                {{ form.weight_kg }}
+                {{ form.weight_kg.errors }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.body_fat_percentage.id_for_label }}">Body Fat %</label>
+                {{ form.body_fat_percentage }}
+                {{ form.body_fat_percentage.errors }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.notes.id_for_label }}">Notes</label>
+                {{ form.notes }}
+                {{ form.notes.errors }}
+            </div>
+
+            <button class="btn btn-primary" type="submit">
+                {% if is_editing %}Update Metric{% else %}Save Metric{% endif %}
+            </button>
         </form>
     </div>
 </div>
