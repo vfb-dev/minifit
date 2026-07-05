@@ -79,7 +79,14 @@
         <div class="card">
             <div class="card-body">
                 <h2 class="h5 mb-3">Weight Progress</h2>
-                <canvas id="weightChart" height="140"></canvas>
+
+                {% if weight_values %}
+                    <canvas id="weightChart" height="140"></canvas>
+                {% else %}
+                    <div class="alert alert-info mb-0">
+                        Add body metrics to see your weight progress.
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -88,7 +95,14 @@
         <div class="card">
             <div class="card-body">
                 <h2 class="h5 mb-3">Workouts Per Week</h2>
-                <canvas id="workoutChart" height="140"></canvas>
+
+                {% if workout_week_values %}
+                    <canvas id="workoutChart" height="140"></canvas>
+                {% else %}
+                    <div class="alert alert-info mb-0">
+                        Add workouts to see your weekly training chart.
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -164,34 +178,42 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const weightLabels = JSON.parse(document.getElementById("weight-labels").textContent);
-    const weightValues = JSON.parse(document.getElementById("weight-values").textContent);
-    const workoutWeekLabels = JSON.parse(document.getElementById("workout-week-labels").textContent);
-    const workoutWeekValues = JSON.parse(document.getElementById("workout-week-values").textContent);
+    const weightCanvas = document.getElementById("weightChart");
+    const workoutCanvas = document.getElementById("workoutChart");
 
-    new Chart(document.getElementById("weightChart"), {
-        type: "line",
-        data: {
-            labels: weightLabels,
-            datasets: [{
-                label: "Weight kg",
-                data: weightValues,
-                borderWidth: 2,
-                tension: 0.3
-            }]
-        }
-    });
+    if (weightCanvas) {
+        const weightLabels = JSON.parse(document.getElementById("weight-labels").textContent);
+        const weightValues = JSON.parse(document.getElementById("weight-values").textContent);
 
-    new Chart(document.getElementById("workoutChart"), {
-        type: "bar",
-        data: {
-            labels: workoutWeekLabels,
-            datasets: [{
-                label: "Workouts",
-                data: workoutWeekValues,
-                borderWidth: 1
-            }]
-        }
-    });
+        new Chart(weightCanvas, {
+            type: "line",
+            data: {
+                labels: weightLabels,
+                datasets: [{
+                    label: "Weight kg",
+                    data: weightValues,
+                    borderWidth: 2,
+                    tension: 0.3
+                }]
+            }
+        });
+    }
+
+    if (workoutCanvas) {
+        const workoutWeekLabels = JSON.parse(document.getElementById("workout-week-labels").textContent);
+        const workoutWeekValues = JSON.parse(document.getElementById("workout-week-values").textContent);
+
+        new Chart(workoutCanvas, {
+            type: "bar",
+            data: {
+                labels: workoutWeekLabels,
+                datasets: [{
+                    label: "Workouts",
+                    data: workoutWeekValues,
+                    borderWidth: 1
+                }]
+            }
+        });
+    }
 </script>
 {% endblock %}
