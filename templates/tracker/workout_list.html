@@ -25,12 +25,9 @@
             <input class="form-control" type="date" id="end_date" name="end_date" value="{{ end_date }}">
         </div>
 
-        <div class="col-md-1 d-grid">
-            <a href="{% url 'tracker:workout_list' %}" class="btn btn-outline-secondary mt-2">Reset</a>
-        </div>
-
-        <div class="col-md-1 d-grid">
+        <div class="col-md-2 d-grid">
             <button class="btn btn-primary" type="submit">Filter</button>
+            <a href="{% url 'tracker:workout_list' %}" class="btn btn-outline-secondary mt-2">Reset</a>
         </div>
     </div>
 </form>
