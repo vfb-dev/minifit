@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.db.models import F, Sum
+from django.db.models import F, Sum, Q
 
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
@@ -88,11 +88,31 @@ def dashboard(request):
 def workout_list(request):
     workouts = Workout.objects.filter(user=request.user)
 
+    query = request.GET.get("q", "").strip()
+    start_date = request.GET.get("start_date", "")
+    end_date = request.GET.get("end_date", "")
+
+    if query:
+        workouts = workouts.filter(
+            Q(title__icontains=query)
+            | Q(notes__icontains=query)
+            | Q(sets__exercise__name__icontains=query)
+        ).distinct()
+
+    if start_date:
+        workouts = workouts.filter(date__gte=start_date)
+
+    if end_date:
+        workouts = workouts.filter(date__lte=end_date)
+
     return render(
         request,
         "tracker/workout_list.html",
         {
             "workouts": workouts,
+            "query": query,
+            "start_date": start_date,
+            "end_date": end_date,
         },
     )
 
