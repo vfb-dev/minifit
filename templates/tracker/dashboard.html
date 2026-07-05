@@ -54,6 +54,35 @@
             </div>
         </div>
     </div>
+
+    <div class="col-md">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Active Goals</div>
+                <div class="display-6 fw-bold">{{ active_goals }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Weight Progress</h2>
+                <canvas id="weightChart" height="140"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Workouts Per Week</h2>
+                <canvas id="workoutChart" height="140"></canvas>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row g-4">
@@ -90,4 +119,42 @@
         </div>
     </div>
 </div>
+
+{{ weight_labels|json_script:"weight-labels" }}
+{{ weight_values|json_script:"weight-values" }}
+{{ workout_week_labels|json_script:"workout-week-labels" }}
+{{ workout_week_values|json_script:"workout-week-values" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const weightLabels = JSON.parse(document.getElementById("weight-labels").textContent);
+    const weightValues = JSON.parse(document.getElementById("weight-values").textContent);
+    const workoutWeekLabels = JSON.parse(document.getElementById("workout-week-labels").textContent);
+    const workoutWeekValues = JSON.parse(document.getElementById("workout-week-values").textContent);
+
+    new Chart(document.getElementById("weightChart"), {
+        type: "line",
+        data: {
+            labels: weightLabels,
+            datasets: [{
+                label: "Weight kg",
+                data: weightValues,
+                borderWidth: 2,
+                tension: 0.3
+            }]
+        }
+    });
+
+    new Chart(document.getElementById("workoutChart"), {
+        type: "bar",
+        data: {
+            labels: workoutWeekLabels,
+            datasets: [{
+                label: "Workouts",
+                data: workoutWeekValues,
+                borderWidth: 1
+            }]
+        }
+    });
+</script>
 {% endblock %}

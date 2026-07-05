@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required
 from .forms import BodyMetricForm, ExerciseForm, GoalForm, WorkoutForm, WorkoutSetForm
 from .models import BodyMetric, Exercise, Goal, Workout, WorkoutSet
 
+from datetime import timedelta
+
 def register(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
@@ -30,6 +32,26 @@ def dashboard(request):
     total_sets = WorkoutSet.objects.filter(workout__user=request.user).count()
     exercise_count = Exercise.objects.count()
     latest_metric = BodyMetric.objects.filter(user=request.user).first()
+    active_goals = Goal.objects.filter(user=request.user, completed=False).count()
+
+    metrics = BodyMetric.objects.filter(user=request.user).order_by("date")[:20]
+    weight_labels = [metric.date.strftime("%b %d") for metric in metrics]
+    weight_values = [float(metric.weight_kg) for metric in metrics]
+
+    today = timezone.localdate()
+    current_week_start = today - timedelta(days=today.weekday())
+
+    workout_week_labels = []
+    workout_week_values = []
+
+    for weeks_ago in range(7, -1, -1):
+        week_start = current_week_start - timedelta(weeks=weeks_ago)
+        week_end = week_start + timedelta(days=6)
+
+        workout_week_labels.append(week_start.strftime("%b %d"))
+        workout_week_values.append(
+            workouts.filter(date__range=[week_start, week_end]).count()
+        )
 
     return render(
         request,
@@ -40,6 +62,11 @@ def dashboard(request):
             "total_sets": total_sets,
             "exercise_count": exercise_count,
             "latest_metric": latest_metric,
+            "active_goals": active_goals,
+            "weight_labels": weight_labels,
+            "weight_values": weight_values,
+            "workout_week_labels": workout_week_labels,
+            "workout_week_values": workout_week_values,
         },
     )
 
