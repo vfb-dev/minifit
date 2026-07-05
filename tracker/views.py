@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.db.models import F, Sum
 
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
@@ -30,6 +31,12 @@ def dashboard(request):
 
     workout_count = workouts.count()
     total_sets = WorkoutSet.objects.filter(workout__user=request.user).count()
+    total_volume = (
+        WorkoutSet.objects
+        .filter(workout__user=request.user, reps__isnull=False, weight_kg__isnull=False)
+        .aggregate(total=Sum(F("reps") * F("weight_kg")))["total"]
+        or 0
+    )
     exercise_count = Exercise.objects.count()
     latest_metric = BodyMetric.objects.filter(user=request.user).first()
     active_goals = Goal.objects.filter(user=request.user, completed=False).count()
@@ -60,6 +67,7 @@ def dashboard(request):
             "recent_workouts": recent_workouts,
             "workout_count": workout_count,
             "total_sets": total_sets,
+            "total_volume": total_volume,
             "exercise_count": exercise_count,
             "latest_metric": latest_metric,
             "active_goals": active_goals,
