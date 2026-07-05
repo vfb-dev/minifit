@@ -143,6 +143,48 @@ def workout_set_create(request, pk):
     )
 
 @login_required
+def workout_set_update(request, pk):
+    workout_set = get_object_or_404(WorkoutSet, pk=pk, workout__user=request.user)
+    workout = workout_set.workout
+
+    if request.method == "POST":
+        form = WorkoutSetForm(request.POST, instance=workout_set)
+
+        if form.is_valid():
+            form.save()
+            return redirect("tracker:workout_detail", pk=workout.pk)
+    else:
+        form = WorkoutSetForm(instance=workout_set)
+
+    return render(
+        request,
+        "tracker/workout_set_form.html",
+        {
+            "form": form,
+            "workout": workout,
+            "is_editing": True,
+        },
+    )
+
+@login_required
+def workout_set_delete(request, pk):
+    workout_set = get_object_or_404(WorkoutSet, pk=pk, workout__user=request.user)
+    workout = workout_set.workout
+
+    if request.method == "POST":
+        workout_set.delete()
+        return redirect("tracker:workout_detail", pk=workout.pk)
+
+    return render(
+        request,
+        "tracker/workout_set_confirm_delete.html",
+        {
+            "workout_set": workout_set,
+            "workout": workout,
+        },
+    )
+
+@login_required
 def exercise_list(request):
     exercises = Exercise.objects.order_by("name")
 

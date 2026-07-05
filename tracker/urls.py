@@ -16,4 +16,6 @@ urlpatterns = [
     path("exercises/add/", views.exercise_create, name="exercise_create"),
     path("metrics/", views.body_metric_list, name="body_metric_list"),
     path("metrics/add/", views.body_metric_create, name="body_metric_create"),
+    path("sets/<int:pk>/edit/", views.workout_set_update, name="workout_set_update"),
+    path("sets/<int:pk>/delete/", views.workout_set_delete, name="workout_set_delete"),
 ]

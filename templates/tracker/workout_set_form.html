@@ -9,7 +9,7 @@
 
 <div class="card">
     <div class="card-body">
-        <h1 class="h3 mb-1">Add Set</h1>
+        <h1 class="h3 mb-1">{% if is_editing %}Edit Set{% else %}Add Set{% endif %}</h1>
         <p class="text-muted mb-4">{{ workout.title }} - {{ workout.date }}</p>
 
         <form method="post">
@@ -55,7 +55,9 @@
                 </div>
             </div>
 
-            <button class="btn btn-primary" type="submit">Save Set</button>
+            <button class="btn btn-primary" type="submit">
+                {% if is_editing %}Update Set{% else %}Save Set{% endif %}
+            </button>
         </form>
     </div>
 </div>

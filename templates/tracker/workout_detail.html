@@ -39,6 +39,7 @@
                     <th>Weight</th>
                     <th>Duration</th>
                     <th>Distance</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -50,6 +51,12 @@
                         <td>{% if set.weight_kg %}{{ set.weight_kg }} kg{% else %}-{% endif %}</td>
                         <td>{% if set.duration_minutes %}{{ set.duration_minutes }} min{% else %}-{% endif %}</td>
                         <td>{% if set.distance_km %}{{ set.distance_km }} km{% else %}-{% endif %}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'tracker:workout_set_update' set.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
+                                <a href="{% url 'tracker:workout_set_delete' set.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                            </div>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
