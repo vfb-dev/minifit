@@ -216,6 +216,45 @@ def exercise_create(request):
     )
 
 @login_required
+def exercise_update(request, pk):
+    exercise = get_object_or_404(Exercise, pk=pk)
+
+    if request.method == "POST":
+        form = ExerciseForm(request.POST, instance=exercise)
+
+        if form.is_valid():
+            form.save()
+            return redirect("tracker:exercise_list")
+    else:
+        form = ExerciseForm(instance=exercise)
+
+    return render(
+        request,
+        "tracker/exercise_form.html",
+        {
+            "form": form,
+            "exercise": exercise,
+            "is_editing": True,
+        },
+    )
+
+@login_required
+def exercise_delete(request, pk):
+    exercise = get_object_or_404(Exercise, pk=pk)
+
+    if request.method == "POST":
+        exercise.delete()
+        return redirect("tracker:exercise_list")
+
+    return render(
+        request,
+        "tracker/exercise_confirm_delete.html",
+        {
+            "exercise": exercise,
+        },
+    )
+
+@login_required
 def body_metric_list(request):
     metrics = BodyMetric.objects.filter(user=request.user)
 

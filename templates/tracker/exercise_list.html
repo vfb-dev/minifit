@@ -10,12 +10,19 @@
 
 {% if exercises %}
     <div class="list-group">
-        {% for exercise in exercises %}
-            <div class="list-group-item">
+    {% for exercise in exercises %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
                 <strong>{{ exercise.name }}</strong>
                 <span class="badge bg-secondary ms-2">{{ exercise.get_muscle_group_display }}</span>
             </div>
-        {% endfor %}
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'tracker:exercise_update' exercise.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
+                <a href="{% url 'tracker:exercise_delete' exercise.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+            </div>
+        </div>
+    {% endfor %}
     </div>
 {% else %}
     <div class="alert alert-info">No exercises yet. Add your first one.</div>

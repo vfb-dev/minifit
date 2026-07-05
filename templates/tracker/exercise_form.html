@@ -9,7 +9,7 @@
 
 <div class="card">
     <div class="card-body">
-        <h1 class="h3 mb-4">Add Exercise</h1>
+        <h1 class="h3 mb-4">{% if is_editing %}Edit Exercise{% else %}Add Exercise{% endif %}</h1>
 
         <form method="post">
             {% csrf_token %}
@@ -26,7 +26,9 @@
                 {{ form.muscle_group.errors }}
             </div>
 
-            <button class="btn btn-primary" type="submit">Save Exercise</button>
+            <button class="btn btn-primary" type="submit">
+                {% if is_editing %}Update Exercise{% else %}Save Exercise{% endif %}
+            </button>
         </form>
     </div>
 </div>
