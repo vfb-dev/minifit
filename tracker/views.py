@@ -397,7 +397,32 @@ def body_metric_delete(request, pk):
 def goal_list(request):
     goals = Goal.objects.filter(user=request.user).order_by("completed", "deadline")
 
-    return render(request, "tracker/goal_list.html", {"goals": goals})
+    query = request.GET.get("q", "").strip()
+    goal_type = request.GET.get("goal_type", "")
+    status = request.GET.get("status", "active")
+
+    if query:
+        goals = goals.filter(title__icontains=query)
+
+    if goal_type:
+        goals = goals.filter(goal_type=goal_type)
+
+    if status == "active":
+        goals = goals.filter(completed=False)
+    elif status == "completed":
+        goals = goals.filter(completed=True)
+
+    return render(
+        request,
+        "tracker/goal_list.html",
+        {
+            "goals": goals,
+            "query": query,
+            "goal_type": goal_type,
+            "status": status,
+            "goal_types": Goal.GOAL_TYPES,
+        },
+    )
 
 @login_required
 def goal_create(request):

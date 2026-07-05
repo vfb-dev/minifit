@@ -8,6 +8,39 @@
     <a href="{% url 'tracker:goal_create' %}" class="btn btn-primary">Add Goal</a>
 </div>
 
+<form method="get" class="card card-body mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label" for="q">Search</label>
+            <input class="form-control" type="text" id="q" name="q" value="{{ query }}" placeholder="Goal title...">
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label" for="goal_type">Type</label>
+            <select class="form-select" id="goal_type" name="goal_type">
+                <option value="">All types</option>
+                {% for value, label in goal_types %}
+                    <option value="{{ value }}" {% if goal_type == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label" for="status">Status</label>
+            <select class="form-select" id="status" name="status">
+                <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
+                <option value="completed" {% if status == "completed" %}selected{% endif %}>Completed</option>
+                <option value="all" {% if status == "all" %}selected{% endif %}>All</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-primary" type="submit">Filter</button>
+            <a href="{% url 'tracker:goal_list' %}" class="btn btn-outline-secondary mt-2">Reset</a>
+        </div>
+    </div>
+</form>
+
 {% if goals %}
     <div class="list-group">
         {% for goal in goals %}
