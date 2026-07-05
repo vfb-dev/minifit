@@ -1,15 +1,9 @@
-from django.shortcuts import render
-
-# Create your views here.
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
-
-from .models import BodyMetric, Exercise, Workout, WorkoutSet
-
-from django.shortcuts import redirect
 from django.utils import timezone
 
-from .forms import BodyMetricForm, ExerciseForm, WorkoutForm, WorkoutSetForm
+from .forms import BodyMetricForm, ExerciseForm, GoalForm, WorkoutForm, WorkoutSetForm
+from .models import BodyMetric, Exercise, Goal, Workout, WorkoutSet
 
 @login_required
 def dashboard(request):
@@ -306,7 +300,6 @@ def body_metric_update(request, pk):
         },
     )
 
-
 @login_required
 def body_metric_delete(request, pk):
     metric = get_object_or_404(BodyMetric, pk=pk, user=request.user)
@@ -322,3 +315,49 @@ def body_metric_delete(request, pk):
             "metric": metric,
         },
     )
+
+@login_required
+def goal_list(request):
+    goals = Goal.objects.filter(user=request.user).order_by("completed", "deadline")
+
+    return render(request, "tracker/goal_list.html", {"goals": goals})
+
+@login_required
+def goal_create(request):
+    if request.method == "POST":
+        form = GoalForm(request.POST)
+
+        if form.is_valid():
+            goal = form.save(commit=False)
+            goal.user = request.user
+            goal.save()
+            return redirect("tracker:goal_list")
+    else:
+        form = GoalForm()
+
+    return render(request, "tracker/goal_form.html", {"form": form})
+
+@login_required
+def goal_update(request, pk):
+    goal = get_object_or_404(Goal, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        form = GoalForm(request.POST, instance=goal)
+
+        if form.is_valid():
+            form.save()
+            return redirect("tracker:goal_list")
+    else:
+        form = GoalForm(instance=goal)
+
+    return render(request, "tracker/goal_form.html", {"form": form, "is_editing": True})
+
+@login_required
+def goal_delete(request, pk):
+    goal = get_object_or_404(Goal, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        goal.delete()
+        return redirect("tracker:goal_list")
+
+    return render(request, "tracker/goal_confirm_delete.html", {"goal": goal})

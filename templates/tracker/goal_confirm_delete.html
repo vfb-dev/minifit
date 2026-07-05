@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Goal | MiniFit{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="h3 mb-3">Delete Goal</h1>
+
+        <p>Are you sure you want to delete <strong>{{ goal.title }}</strong>?</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit">Yes, Delete</button>
+            <a href="{% url 'tracker:goal_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

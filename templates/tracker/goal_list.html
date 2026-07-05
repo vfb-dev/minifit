@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Goals | MiniFit{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Goals</h1>
+    <a href="{% url 'tracker:goal_create' %}" class="btn btn-primary">Add Goal</a>
+</div>
+
+{% if goals %}
+    <div class="list-group">
+        {% for goal in goals %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ goal.title }}</strong>
+                    <span class="badge bg-secondary ms-2">{{ goal.get_goal_type_display }}</span>
+
+                    {% if goal.completed %}
+                        <span class="badge bg-success ms-1">Completed</span>
+                    {% endif %}
+
+                    <div class="text-muted small">
+                        {% if goal.target_value %}Target: {{ goal.target_value }} {{ goal.unit }}{% endif %}
+                        {% if goal.deadline %}Deadline: {{ goal.deadline }}{% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{% url 'tracker:goal_update' goal.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
+                    <a href="{% url 'tracker:goal_delete' goal.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">No goals yet. Add your first one.</div>
+{% endif %}
+{% endblock %}
