@@ -40,6 +40,11 @@ def dashboard(request):
     exercise_count = Exercise.objects.count()
     latest_metric = BodyMetric.objects.filter(user=request.user).first()
     active_goals = Goal.objects.filter(user=request.user, completed=False).count()
+    active_goal_list = (
+        Goal.objects
+        .filter(user=request.user, completed=False)
+        .order_by("deadline", "title")[:5]
+    )
 
     metrics = BodyMetric.objects.filter(user=request.user).order_by("date")[:20]
     weight_labels = [metric.date.strftime("%b %d") for metric in metrics]
@@ -71,6 +76,7 @@ def dashboard(request):
             "exercise_count": exercise_count,
             "latest_metric": latest_metric,
             "active_goals": active_goals,
+            "active_goal_list": active_goal_list,
             "weight_labels": weight_labels,
             "weight_values": weight_values,
             "workout_week_labels": workout_week_labels,
