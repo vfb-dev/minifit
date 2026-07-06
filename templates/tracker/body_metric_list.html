@@ -8,6 +8,25 @@
     <a href="{% url 'tracker:body_metric_create' %}" class="btn btn-primary">Add Metric</a>
 </div>
 
+<form method="get" class="card card-body mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label" for="start_date">From</label>
+            <input class="form-control" type="date" id="start_date" name="start_date" value="{{ start_date }}">
+        </div>
+
+        <div class="col-md-5">
+            <label class="form-label" for="end_date">To</label>
+            <input class="form-control" type="date" id="end_date" name="end_date" value="{{ end_date }}">
+        </div>
+
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-primary" type="submit">Filter</button>
+            <a href="{% url 'tracker:body_metric_list' %}" class="btn btn-outline-secondary mt-2">Reset</a>
+        </div>
+    </div>
+</form>
+
 {% if metrics %}
     <table class="table table-striped align-middle">
         <thead>

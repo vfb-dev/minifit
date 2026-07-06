@@ -329,10 +329,23 @@ def exercise_delete(request, pk):
 def body_metric_list(request):
     metrics = BodyMetric.objects.filter(user=request.user)
 
+    start_date = request.GET.get("start_date", "")
+    end_date = request.GET.get("end_date", "")
+
+    if start_date:
+        metrics = metrics.filter(date__gte=start_date)
+
+    if end_date:
+        metrics = metrics.filter(date__lte=end_date)
+
     return render(
         request,
         "tracker/body_metric_list.html",
-        {"metrics": metrics},
+        {
+            "metrics": metrics,
+            "start_date": start_date,
+            "end_date": end_date,
+        },
     )
 
 @login_required
