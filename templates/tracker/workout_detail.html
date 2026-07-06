@@ -23,6 +23,44 @@
     </div>
 </div>
 
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Sets</div>
+                <div class="h3 mb-0">{{ total_sets }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Volume</div>
+                <div class="h3 mb-0">{{ total_volume|floatformat:0 }} kg</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Duration</div>
+                <div class="h3 mb-0">{{ total_duration }} min</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Distance</div>
+                <div class="h3 mb-0">{{ total_distance|floatformat:2 }} km</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h5 mb-0">Sets</h2>
     <a href="{% url 'tracker:workout_set_create' workout.pk %}" class="btn btn-primary btn-sm">Add Set</a>

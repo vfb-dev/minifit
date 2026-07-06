@@ -175,12 +175,26 @@ def workout_list(request):
 @login_required
 def workout_detail(request, pk):
     workout = get_object_or_404(Workout, pk=pk, user=request.user)
+    sets = workout.sets.select_related("exercise")
+
+    total_sets = sets.count()
+    total_volume = (
+        sets.filter(reps__isnull=False, weight_kg__isnull=False)
+        .aggregate(total=Sum(F("reps") * F("weight_kg")))["total"]
+        or 0
+    )
+    total_duration = sets.aggregate(total=Sum("duration_minutes"))["total"] or 0
+    total_distance = sets.aggregate(total=Sum("distance_km"))["total"] or 0
 
     return render(
         request,
         "tracker/workout_detail.html",
         {
             "workout": workout,
+            "total_sets": total_sets,
+            "total_volume": total_volume,
+            "total_duration": total_duration,
+            "total_distance": total_distance,
         },
     )
 
