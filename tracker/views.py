@@ -13,6 +13,11 @@ from .models import BodyMetric, Exercise, Goal, Workout, WorkoutSet
 
 from datetime import timedelta
 
+def available_exercises_for_user(user):
+    return Exercise.objects.filter(
+        Q(created_by=user) | Q(created_by__isnull=True)
+    ).order_by("name")
+
 def paginate_queryset(request, queryset, per_page=10):
     paginator = Paginator(queryset, per_page)
     page_obj = paginator.get_page(request.GET.get("page"))
@@ -258,6 +263,7 @@ def workout_set_create(request, pk):
     else:
         next_set_number = workout.sets.count() + 1
         form = WorkoutSetForm(initial={"set_number": next_set_number})
+        form.fields["exercise"].queryset = available_exercises_for_user(request.user)
 
     return render(
         request,
@@ -282,6 +288,7 @@ def workout_set_update(request, pk):
             return redirect("tracker:workout_detail", pk=workout.pk)
     else:
         form = WorkoutSetForm(instance=workout_set)
+        form.fields["exercise"].queryset = available_exercises_for_user(request.user)
 
     return render(
         request,
@@ -314,7 +321,7 @@ def workout_set_delete(request, pk):
 
 @login_required
 def exercise_list(request):
-    exercises = Exercise.objects.order_by("name")
+    exercises = available_exercises_for_user(request.user)
 
     return render(
         request,
@@ -330,7 +337,9 @@ def exercise_create(request):
         form = ExerciseForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            exercise = form.save(commit=False)
+            exercise.created_by = request.user
+            exercise.save()
             messages.success(request, "Exercise created successfully.")
             return redirect("tracker:exercise_list")
     else:
@@ -346,7 +355,7 @@ def exercise_create(request):
 
 @login_required
 def exercise_update(request, pk):
-    exercise = get_object_or_404(Exercise, pk=pk)
+    exercise = get_object_or_404(Exercise, pk=pk, created_by=request.user)
 
     if request.method == "POST":
         form = ExerciseForm(request.POST, instance=exercise)
@@ -370,7 +379,7 @@ def exercise_update(request, pk):
 
 @login_required
 def exercise_delete(request, pk):
-    exercise = get_object_or_404(Exercise, pk=pk)
+    exercise = get_object_or_404(Exercise, pk=pk, created_by=request.user)
 
     if request.method == "POST":
         exercise.delete()

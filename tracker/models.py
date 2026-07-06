@@ -14,7 +14,14 @@ class Exercise(models.Model):
         ("cardio", "Cardio"),
         ("other", "Other"),
     ]
-
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="exercises",
+        null=True,
+        blank=True,
+    )
     name = models.CharField(max_length=120, unique=True)
     muscle_group = models.CharField(max_length=20, choices=MUSCLE_GROUPS, default="other")
 

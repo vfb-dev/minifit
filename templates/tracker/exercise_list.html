@@ -10,19 +10,23 @@
 
 {% if exercises %}
     <div class="list-group">
-    {% for exercise in exercises %}
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-                <strong>{{ exercise.name }}</strong>
-                <span class="badge bg-secondary ms-2">{{ exercise.get_muscle_group_display }}</span>
-            </div>
+        {% for exercise in exercises %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ exercise.name }}</strong>
+                    <span class="badge bg-secondary ms-2">{{ exercise.get_muscle_group_display }}</span>
+                </div>
 
-            <div class="d-flex gap-2">
-                <a href="{% url 'tracker:exercise_update' exercise.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
-                <a href="{% url 'tracker:exercise_delete' exercise.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                {% if exercise.created_by == user %}
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'tracker:exercise_update' exercise.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
+                        <a href="{% url 'tracker:exercise_delete' exercise.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                    </div>
+                {% else %}
+                    <span class="badge bg-light text-dark">Shared</span>
+                {% endif %}
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
     </div>
 {% else %}
     <div class="alert alert-info">No exercises yet. Add your first one.</div>
