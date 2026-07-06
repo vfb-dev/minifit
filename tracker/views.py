@@ -7,7 +7,7 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 
-from .forms import BodyMetricForm, ExerciseForm, GoalForm, WorkoutForm, WorkoutSetForm
+from .forms import BodyMetricForm, ExerciseForm, GoalForm, ProfileForm, WorkoutForm, WorkoutSetForm
 from .models import BodyMetric, Exercise, Goal, Workout, WorkoutSet
 
 from datetime import timedelta
@@ -47,6 +47,25 @@ def profile(request):
             "workout_count": workout_count,
             "metric_count": metric_count,
             "active_goal_count": active_goal_count,
+        },
+    )
+
+@login_required
+def profile_update(request):
+    if request.method == "POST":
+        form = ProfileForm(request.POST, instance=request.user)
+
+        if form.is_valid():
+            form.save()
+            return redirect("tracker:profile")
+    else:
+        form = ProfileForm(instance=request.user)
+
+    return render(
+        request,
+        "tracker/profile_form.html",
+        {
+            "form": form,
         },
     )
 

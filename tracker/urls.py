@@ -28,4 +28,5 @@ urlpatterns = [
     path("goals/<int:pk>/delete/", views.goal_delete, name="goal_delete"),
     path("register/", views.register, name="register"),
     path("profile/", views.profile, name="profile"),
+    path("profile/edit/", views.profile_update, name="profile_update"),
 ]
