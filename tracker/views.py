@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.db.models import F, Sum, Q
 from django.core.paginator import Paginator
 
+from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
@@ -57,6 +58,7 @@ def profile_update(request):
 
         if form.is_valid():
             form.save()
+            messages.success(request, "Profile updated successfully.")
             return redirect("tracker:profile")
     else:
         form = ProfileForm(instance=request.user)
@@ -186,6 +188,7 @@ def workout_create(request):
             workout = form.save(commit=False)
             workout.user = request.user
             workout.save()
+            messages.success(request, "Workout created successfully.")
             return redirect("tracker:workout_detail", pk=workout.pk)
     else:
         form = WorkoutForm(initial={"date": timezone.localdate()})
@@ -207,6 +210,7 @@ def workout_update(request, pk):
 
         if form.is_valid():
             form.save()
+            messages.success(request, "Workout updated successfully.")
             return redirect("tracker:workout_detail", pk=workout.pk)
     else:
         form = WorkoutForm(instance=workout)
@@ -227,6 +231,7 @@ def workout_delete(request, pk):
 
     if request.method == "POST":
         workout.delete()
+        messages.success(request, "Workout deleted successfully.")
         return redirect("tracker:workout_list")
 
     return render(
@@ -248,6 +253,7 @@ def workout_set_create(request, pk):
             workout_set = form.save(commit=False)
             workout_set.workout = workout
             workout_set.save()
+            messages.success(request, "Set created successfully.")
             return redirect("tracker:workout_detail", pk=workout.pk)
     else:
         next_set_number = workout.sets.count() + 1
@@ -272,6 +278,7 @@ def workout_set_update(request, pk):
 
         if form.is_valid():
             form.save()
+            messages.success(request, "Set updated successfully.")
             return redirect("tracker:workout_detail", pk=workout.pk)
     else:
         form = WorkoutSetForm(instance=workout_set)
@@ -293,6 +300,7 @@ def workout_set_delete(request, pk):
 
     if request.method == "POST":
         workout_set.delete()
+        messages.success(request, "Set deleted successfully.")
         return redirect("tracker:workout_detail", pk=workout.pk)
 
     return render(
@@ -323,6 +331,7 @@ def exercise_create(request):
 
         if form.is_valid():
             form.save()
+            messages.success(request, "Exercise created successfully.")
             return redirect("tracker:exercise_list")
     else:
         form = ExerciseForm()
@@ -344,6 +353,7 @@ def exercise_update(request, pk):
 
         if form.is_valid():
             form.save()
+            messages.success(request, "Exercise updated successfully.")
             return redirect("tracker:exercise_list")
     else:
         form = ExerciseForm(instance=exercise)
@@ -364,6 +374,7 @@ def exercise_delete(request, pk):
 
     if request.method == "POST":
         exercise.delete()
+        messages.success(request, "Exercise deleted successfully.")
         return redirect("tracker:exercise_list")
 
     return render(
@@ -410,6 +421,7 @@ def body_metric_create(request):
             metric = form.save(commit=False)
             metric.user = request.user
             metric.save()
+            messages.success(request, "Metric created successfully.")
             return redirect("tracker:body_metric_list")
     else:
         form = BodyMetricForm(initial={"date": timezone.localdate()})
@@ -429,6 +441,7 @@ def body_metric_update(request, pk):
 
         if form.is_valid():
             form.save()
+            messages.success(request, "Metric updated successfully.")
             return redirect("tracker:body_metric_list")
     else:
         form = BodyMetricForm(instance=metric)
@@ -449,6 +462,7 @@ def body_metric_delete(request, pk):
 
     if request.method == "POST":
         metric.delete()
+        messages.success(request, "Metric deleted successfully.")
         return redirect("tracker:body_metric_list")
 
     return render(
@@ -503,6 +517,7 @@ def goal_create(request):
             goal = form.save(commit=False)
             goal.user = request.user
             goal.save()
+            messages.success(request, "Goal created successfully.")
             return redirect("tracker:goal_list")
     else:
         form = GoalForm()
@@ -518,6 +533,7 @@ def goal_update(request, pk):
 
         if form.is_valid():
             form.save()
+            messages.success(request, "Goal updated successfully.")
             return redirect("tracker:goal_list")
     else:
         form = GoalForm(instance=goal)
@@ -530,6 +546,7 @@ def goal_delete(request, pk):
 
     if request.method == "POST":
         goal.delete()
+        messages.success(request, "Goal deleted successfully.")
         return redirect("tracker:goal_list")
 
     return render(request, "tracker/goal_confirm_delete.html", {"goal": goal})
