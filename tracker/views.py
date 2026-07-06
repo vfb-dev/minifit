@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.db.models import F, Sum, Q
+from django.core.paginator import Paginator
 
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
@@ -10,6 +11,15 @@ from .forms import BodyMetricForm, ExerciseForm, GoalForm, WorkoutForm, WorkoutS
 from .models import BodyMetric, Exercise, Goal, Workout, WorkoutSet
 
 from datetime import timedelta
+
+def paginate_queryset(request, queryset, per_page=10):
+    paginator = Paginator(queryset, per_page)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    query_params = request.GET.copy()
+    query_params.pop("page", None)
+
+    return page_obj, query_params.urlencode()
 
 def register(request):
     if request.method == "POST":
@@ -105,11 +115,15 @@ def workout_list(request):
     if end_date:
         workouts = workouts.filter(date__lte=end_date)
 
+    page_obj, querystring = paginate_queryset(request, workouts, per_page=10)
+
     return render(
         request,
         "tracker/workout_list.html",
         {
-            "workouts": workouts,
+            "workouts": page_obj.object_list,
+            "page_obj": page_obj,
+            "querystring": querystring,
             "query": query,
             "start_date": start_date,
             "end_date": end_date,
@@ -338,11 +352,15 @@ def body_metric_list(request):
     if end_date:
         metrics = metrics.filter(date__lte=end_date)
 
+    page_obj, querystring = paginate_queryset(request, metrics, per_page=10)
+
     return render(
         request,
         "tracker/body_metric_list.html",
         {
-            "metrics": metrics,
+            "metrics": page_obj.object_list,
+            "page_obj": page_obj,
+            "querystring": querystring,
             "start_date": start_date,
             "end_date": end_date,
         },
@@ -425,11 +443,15 @@ def goal_list(request):
     elif status == "completed":
         goals = goals.filter(completed=True)
 
+    page_obj, querystring = paginate_queryset(request, goals, per_page=10)
+
     return render(
         request,
         "tracker/goal_list.html",
         {
-            "goals": goals,
+            "goals": page_obj.object_list,
+            "page_obj": page_obj,
+            "querystring": querystring,
             "query": query,
             "goal_type": goal_type,
             "status": status,
