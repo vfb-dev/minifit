@@ -262,6 +262,40 @@ def workout_delete(request, pk):
     )
 
 @login_required
+def workout_duplicate(request, pk):
+    source_workout = get_object_or_404(Workout, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        new_workout = Workout.objects.create(
+            user=request.user,
+            title=f"{source_workout.title} Copy",
+            date=timezone.localdate(),
+            notes=source_workout.notes,
+        )
+
+        for workout_set in source_workout.sets.all():
+            WorkoutSet.objects.create(
+                workout=new_workout,
+                exercise=workout_set.exercise,
+                set_number=workout_set.set_number,
+                reps=workout_set.reps,
+                weight_kg=workout_set.weight_kg,
+                duration_minutes=workout_set.duration_minutes,
+                distance_km=workout_set.distance_km,
+            )
+
+        messages.success(request, "Workout duplicated successfully.")
+        return redirect("tracker:workout_detail", pk=new_workout.pk)
+
+    return render(
+        request,
+        "tracker/workout_duplicate.html",
+        {
+            "workout": source_workout,
+        },
+    )
+
+@login_required
 def workout_set_create(request, pk):
     workout = get_object_or_404(Workout, pk=pk, user=request.user)
 

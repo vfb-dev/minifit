@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Duplicate Workout | MiniFit{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="h3 mb-3">Duplicate Workout</h1>
+
+        <p>
+            Create a copy of <strong>{{ workout.title }}</strong>
+            with the same sets for today?
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">Duplicate Workout</button>
+            <a href="{% url 'tracker:workout_detail' workout.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
