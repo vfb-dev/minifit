@@ -17,6 +17,20 @@
     <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Volume</div><div class="h3 mb-0">{{ total_volume|floatformat:0 }} kg</div></div></div></div>
 </div>
 
+<div class="card mb-4">
+    <div class="card-body">
+        <h2 class="h5 mb-3">Progress</h2>
+
+        {% if progress_values %}
+            <canvas id="exerciseProgressChart" height="100"></canvas>
+        {% else %}
+            <div class="alert alert-info mb-0">
+                Add weighted sets to see progress for this exercise.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
 <h2 class="h5 mb-3">Recent History</h2>
 
 {% if sets %}
@@ -45,4 +59,30 @@
 {% else %}
     <div class="alert alert-info">No history yet for this exercise.</div>
 {% endif %}
+
+{{ progress_labels|json_script:"progress-labels" }}
+{{ progress_values|json_script:"progress-values" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const progressCanvas = document.getElementById("exerciseProgressChart");
+
+    if (progressCanvas) {
+        const progressLabels = JSON.parse(document.getElementById("progress-labels").textContent);
+        const progressValues = JSON.parse(document.getElementById("progress-values").textContent);
+
+        new Chart(progressCanvas, {
+            type: "line",
+            data: {
+                labels: progressLabels,
+                datasets: [{
+                    label: "Best Weight kg",
+                    data: progressValues,
+                    borderWidth: 2,
+                    tension: 0.3
+                }]
+            }
+        });
+    }
+</script>
 {% endblock %}

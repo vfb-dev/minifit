@@ -365,6 +365,17 @@ def exercise_detail(request, pk):
         or 0
     )
 
+    progress_rows = (
+        WorkoutSet.objects
+        .filter(exercise=exercise, workout__user=request.user, weight_kg__isnull=False)
+        .values("workout__date")
+        .annotate(best_weight=Max("weight_kg"))
+        .order_by("workout__date")
+    )
+
+    progress_labels = [row["workout__date"].strftime("%b %d") for row in progress_rows]
+    progress_values = [float(row["best_weight"]) for row in progress_rows]
+
     return render(
         request,
         "tracker/exercise_detail.html",
@@ -375,6 +386,8 @@ def exercise_detail(request, pk):
             "best_weight": best_weight,
             "best_reps": best_reps,
             "total_volume": total_volume,
+            "progress_labels": progress_labels,
+            "progress_values": progress_values,
         },
     )
 
