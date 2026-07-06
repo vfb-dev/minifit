@@ -35,6 +35,22 @@ def register(request):
     return render(request, "registration/register.html", {"form": form})
 
 @login_required
+def profile(request):
+    workout_count = Workout.objects.filter(user=request.user).count()
+    metric_count = BodyMetric.objects.filter(user=request.user).count()
+    active_goal_count = Goal.objects.filter(user=request.user, completed=False).count()
+
+    return render(
+        request,
+        "tracker/profile.html",
+        {
+            "workout_count": workout_count,
+            "metric_count": metric_count,
+            "active_goal_count": active_goal_count,
+        },
+    )
+
+@login_required
 def dashboard(request):
     workouts = Workout.objects.filter(user=request.user)
     recent_workouts = workouts[:5]

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Profile | MiniFit{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">Profile</h1>
+        <p class="text-muted mb-0">Your MiniFit account summary.</p>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Username</div>
+                <div class="h4 mb-0">{{ user.username }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Email</div>
+                <div class="h4 mb-0">
+                    {% if user.email %}
+                        {{ user.email }}
+                    {% else %}
+                        Not set
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Joined</div>
+                <div class="h4 mb-0">{{ user.date_joined|date:"M d, Y" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Workouts</div>
+                <div class="display-6 fw-bold">{{ workout_count }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Body Metrics</div>
+                <div class="display-6 fw-bold">{{ metric_count }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small">Active Goals</div>
+                <div class="display-6 fw-bold">{{ active_goal_count }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

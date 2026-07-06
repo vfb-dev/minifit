@@ -22,7 +22,9 @@
 
             <div class="ms-auto d-flex align-items-center gap-2">
                 {% if user.is_authenticated %}
-                    <span class="navbar-text text-white-50">{{ user.username }}</span>
+                    <a href="{% url 'tracker:profile' %}" class="navbar-text text-white-50 text-decoration-none">
+                        {{ user.username }}
+                    </a>
 
                     <form method="post" action="{% url 'logout' %}">
                         {% csrf_token %}
