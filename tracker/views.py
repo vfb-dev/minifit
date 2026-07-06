@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.db.models import F, Sum, Q
+from django.db.models import F, Q, Sum, Max
 from django.core.paginator import Paginator
 
 from django.contrib import messages
@@ -342,6 +342,39 @@ def exercise_list(request):
         "tracker/exercise_list.html",
         {
             "exercises": exercises,
+        },
+    )
+
+@login_required
+def exercise_detail(request, pk):
+    exercise = get_object_or_404(available_exercises_for_user(request.user), pk=pk)
+
+    sets = (
+        WorkoutSet.objects
+        .filter(exercise=exercise, workout__user=request.user)
+        .select_related("workout")
+        .order_by("-workout__date", "-workout__created_at", "set_number")
+    )
+
+    total_sets = sets.count()
+    best_weight = sets.aggregate(best=Max("weight_kg"))["best"]
+    best_reps = sets.aggregate(best=Max("reps"))["best"]
+    total_volume = (
+        sets.filter(reps__isnull=False, weight_kg__isnull=False)
+        .aggregate(total=Sum(F("reps") * F("weight_kg")))["total"]
+        or 0
+    )
+
+    return render(
+        request,
+        "tracker/exercise_detail.html",
+        {
+            "exercise": exercise,
+            "sets": sets[:20],
+            "total_sets": total_sets,
+            "best_weight": best_weight,
+            "best_reps": best_reps,
+            "total_volume": total_volume,
         },
     )
 

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ exercise.name }} | MiniFit{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'tracker:exercise_list' %}" class="btn btn-outline-secondary btn-sm">Back to exercises</a>
+</div>
+
+<h1 class="h3 mb-1">{{ exercise.name }}</h1>
+<p class="text-muted">{{ exercise.get_muscle_group_display }}</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Sets</div><div class="h3 mb-0">{{ total_sets }}</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Best Weight</div><div class="h3 mb-0">{{ best_weight|default:"-" }} kg</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Best Reps</div><div class="h3 mb-0">{{ best_reps|default:"-" }}</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Volume</div><div class="h3 mb-0">{{ total_volume|floatformat:0 }} kg</div></div></div></div>
+</div>
+
+<h2 class="h5 mb-3">Recent History</h2>
+
+{% if sets %}
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Workout</th>
+                <th>Set</th>
+                <th>Reps</th>
+                <th>Weight</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for set in sets %}
+                <tr>
+                    <td>{{ set.workout.date }}</td>
+                    <td><a href="{% url 'tracker:workout_detail' set.workout.pk %}">{{ set.workout.title }}</a></td>
+                    <td>{{ set.set_number }}</td>
+                    <td>{{ set.reps|default:"-" }}</td>
+                    <td>{% if set.weight_kg %}{{ set.weight_kg }} kg{% else %}-{% endif %}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="alert alert-info">No history yet for this exercise.</div>
+{% endif %}
+{% endblock %}

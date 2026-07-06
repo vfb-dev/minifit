@@ -13,7 +13,9 @@
         {% for exercise in exercises %}
             <div class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
-                    <strong>{{ exercise.name }}</strong>
+                    <a href="{% url 'tracker:exercise_detail' exercise.pk %}" class="fw-bold text-decoration-none">
+                        {{ exercise.name }}
+                    </a>
                     <span class="badge bg-secondary ms-2">{{ exercise.get_muscle_group_display }}</span>
                 </div>
 
