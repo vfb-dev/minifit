@@ -12,31 +12,37 @@
         <div class="container">
             <a class="navbar-brand fw-bold" href="{% url 'tracker:dashboard' %}">MiniFit</a>
 
-            <div class="navbar-nav">
-                <a class="nav-link" href="{% url 'tracker:dashboard' %}">Dashboard</a>
-                <a class="nav-link" href="{% url 'tracker:workout_calendar' %}">Calendar</a>
-                <a class="nav-link" href="{% url 'tracker:workout_list' %}">Workouts</a>
-                <a class="nav-link" href="{% url 'tracker:template_list' %}">Templates</a>
-                <a class="nav-link" href="{% url 'tracker:exercise_list' %}">Exercises</a>
-                <a class="nav-link" href="{% url 'tracker:body_metric_list' %}">Metrics</a>
-                <a class="nav-link" href="{% url 'tracker:goal_list' %}">Goals</a>
-                <a class="nav-link" href="{% url 'tracker:records' %}">Records</a>
-            </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-            <div class="ms-auto d-flex align-items-center gap-2">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'tracker:profile' %}" class="navbar-text text-white-50 text-decoration-none">
-                        {{ user.username }}
-                    </a>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <div class="navbar-nav me-auto">
+                    <a class="nav-link" href="{% url 'tracker:dashboard' %}">Dashboard</a>
+                    <a class="nav-link" href="{% url 'tracker:workout_calendar' %}">Calendar</a>
+                    <a class="nav-link" href="{% url 'tracker:workout_list' %}">Workouts</a>
+                    <a class="nav-link" href="{% url 'tracker:template_list' %}">Templates</a>
+                    <a class="nav-link" href="{% url 'tracker:exercise_list' %}">Exercises</a>
+                    <a class="nav-link" href="{% url 'tracker:body_metric_list' %}">Metrics</a>
+                    <a class="nav-link" href="{% url 'tracker:goal_list' %}">Goals</a>
+                    <a class="nav-link" href="{% url 'tracker:records' %}">Records</a>
+                </div>
 
-                    <form method="post" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
-                    </form>
-                {% else %}
-                    <a class="btn btn-outline-light btn-sm" href="{% url 'login' %}">Login</a>
-                    <a class="btn btn-primary btn-sm" href="{% url 'tracker:register' %}">Register</a>
-                {% endif %}
+                <div class="d-flex align-items-lg-center gap-2 mt-3 mt-lg-0">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'tracker:profile' %}" class="navbar-text text-white-50 text-decoration-none">
+                            {{ user.username }}
+                        </a>
+
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+                        </form>
+                    {% else %}
+                        <a class="btn btn-outline-light btn-sm" href="{% url 'login' %}">Login</a>
+                        <a class="btn btn-primary btn-sm" href="{% url 'tracker:register' %}">Register</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
