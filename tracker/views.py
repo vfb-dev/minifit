@@ -1,3 +1,6 @@
+import csv
+from datetime import timedelta
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.db.models import F, Q, Sum, Max, Count
@@ -11,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import BodyMetricForm, ExerciseForm, GoalForm, ProfileForm, WorkoutForm, WorkoutSetForm, WorkoutTemplateForm, WorkoutTemplateSetForm
 from .models import BodyMetric, Exercise, Goal, Workout, WorkoutSet, WorkoutTemplate, WorkoutTemplateSet
 
-from datetime import timedelta
+from django.http import HttpResponse
 
 def available_exercises_for_user(user):
     return Exercise.objects.filter(
@@ -889,3 +892,52 @@ def records(request):
             "records": records,
         },
     )
+
+@login_required
+def export_workouts_csv(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="minifit_workouts.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(["Workout", "Date", "Exercise", "Set", "Reps", "Weight kg", "Duration min", "Distance km"])
+
+    sets = (
+        WorkoutSet.objects
+        .filter(workout__user=request.user)
+        .select_related("workout", "exercise")
+        .order_by("-workout__date", "workout__title", "set_number")
+    )
+
+    for workout_set in sets:
+        writer.writerow([
+            workout_set.workout.title,
+            workout_set.workout.date,
+            workout_set.exercise.name,
+            workout_set.set_number,
+            workout_set.reps or "",
+            workout_set.weight_kg or "",
+            workout_set.duration_minutes or "",
+            workout_set.distance_km or "",
+        ])
+
+    return response
+
+@login_required
+def export_metrics_csv(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="minifit_metrics.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(["Date", "Weight kg", "Body Fat %", "Notes"])
+
+    metrics = BodyMetric.objects.filter(user=request.user).order_by("-date")
+
+    for metric in metrics:
+        writer.writerow([
+            metric.date,
+            metric.weight_kg,
+            metric.body_fat_percentage or "",
+            metric.notes,
+        ])
+
+    return response

@@ -42,4 +42,6 @@ urlpatterns = [
     path("profile/", views.profile, name="profile"),
     path("profile/edit/", views.profile_update, name="profile_update"),
     path("records/", views.records, name="records"),
+    path("export/workouts/", views.export_workouts_csv, name="export_workouts_csv"),
+    path("export/metrics/", views.export_metrics_csv, name="export_metrics_csv"),
 ]
