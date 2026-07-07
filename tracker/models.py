@@ -28,7 +28,6 @@ class Exercise(models.Model):
     def __str__(self):
         return self.name
 
-
 class Workout(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -45,7 +44,6 @@ class Workout(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.date}"
-
 
 class WorkoutSet(models.Model):
     workout = models.ForeignKey(
@@ -69,7 +67,45 @@ class WorkoutSet(models.Model):
 
     def __str__(self):
         return f"{self.exercise.name} - set {self.set_number}"
+    
+class WorkoutTemplate(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="workout_templates",
+    )
+    name = models.CharField(max_length=120)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+class WorkoutTemplateSet(models.Model):
+    template = models.ForeignKey(
+        WorkoutTemplate,
+        on_delete=models.CASCADE,
+        related_name="sets",
+    )
+    exercise = models.ForeignKey(
+        Exercise,
+        on_delete=models.CASCADE,
+        related_name="template_sets",
+    )
+    set_number = models.PositiveIntegerField(default=1)
+    reps = models.PositiveIntegerField(null=True, blank=True)
+    weight_kg = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    duration_minutes = models.PositiveIntegerField(null=True, blank=True)
+    distance_km = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+
+    class Meta:
+        ordering = ["set_number"]
+
+    def __str__(self):
+        return f"{self.template.name} - {self.exercise.name} set {self.set_number}"
 
 class BodyMetric(models.Model):
     user = models.ForeignKey(
@@ -92,7 +128,6 @@ class BodyMetric(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.date} - {self.weight_kg}kg"
-
 
 class Goal(models.Model):
     GOAL_TYPES = [
