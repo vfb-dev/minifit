@@ -954,7 +954,7 @@ def records(request):
 @login_required
 def export_workouts_csv(request):
     response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = 'attachment; filename="minifit_workouts.csv"'
+    response["Content-Disposition"] = 'attachment; filename="dj_fit_workouts.csv"'
 
     writer = csv.writer(response)
     writer.writerow(["Workout", "Date", "Exercise", "Set", "Reps", "Weight kg", "Duration min", "Distance km"])
@@ -983,7 +983,7 @@ def export_workouts_csv(request):
 @login_required
 def export_metrics_csv(request):
     response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = 'attachment; filename="minifit_metrics.csv"'
+    response["Content-Disposition"] = 'attachment; filename="dj_fit_metrics.csv"'
 
     writer = csv.writer(response)
     writer.writerow(["Date", "Weight kg", "Body Fat %", "Notes"])

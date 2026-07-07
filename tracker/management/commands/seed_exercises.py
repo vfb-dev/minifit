@@ -26,7 +26,7 @@ EXERCISES = [
 
 
 class Command(BaseCommand):
-    help = "Seed shared exercises for MiniFit."
+    help = "Seed shared exercises for DJ Fit."
 
     def handle(self, *args, **options):
         created_count = 0

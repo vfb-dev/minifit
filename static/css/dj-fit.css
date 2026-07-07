@@ -25,7 +25,7 @@
     letter-spacing: 0;
 }
 
-body.minifit-app {
+body.dj-fit-app {
     min-height: 100vh;
     color: var(--mf-ink);
     background:
