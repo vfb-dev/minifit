@@ -5,12 +5,14 @@
 {% block content %}
 <div class="card">
     <div class="card-body">
-        <h1 class="h3 mb-4">Add Template</h1>
+        <h1 class="h3 mb-4">{% if is_editing %}Edit Template{% else %}Add Template{% endif %}</h1>
 
         <form method="post">
             {% csrf_token %}
             {{ form.as_p }}
-            <button class="btn btn-primary" type="submit">Save Template</button>
+            <button class="btn btn-primary" type="submit">
+                {% if is_editing %}Update Template{% else %}Save Template{% endif %}
+            </button>
         </form>
     </div>
 </div>

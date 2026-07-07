@@ -16,6 +16,8 @@
     <div class="d-flex gap-2">
         <a href="{% url 'tracker:template_start_workout' template.pk %}" class="btn btn-success">Start Workout</a>
         <a href="{% url 'tracker:template_set_create' template.pk %}" class="btn btn-primary">Add Set</a>
+        <a href="{% url 'tracker:template_update' template.pk %}" class="btn btn-outline-primary">Edit</a>
+        <a href="{% url 'tracker:template_delete' template.pk %}" class="btn btn-outline-danger">Delete</a>
     </div>
 </div>
 
