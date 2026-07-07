@@ -8,8 +8,8 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 
-from .forms import BodyMetricForm, ExerciseForm, GoalForm, ProfileForm, WorkoutForm, WorkoutSetForm
-from .models import BodyMetric, Exercise, Goal, Workout, WorkoutSet
+from .forms import BodyMetricForm, ExerciseForm, GoalForm, ProfileForm, WorkoutForm, WorkoutSetForm, WorkoutTemplateForm, WorkoutTemplateSetForm
+from .models import BodyMetric, Exercise, Goal, Workout, WorkoutSet, WorkoutTemplate, WorkoutTemplateSet
 
 from datetime import timedelta
 
@@ -365,6 +365,63 @@ def workout_set_delete(request, pk):
             "workout_set": workout_set,
             "workout": workout,
         },
+    )
+
+
+@login_required
+def template_list(request):
+    templates = WorkoutTemplate.objects.filter(user=request.user)
+
+    return render(request, "tracker/workout_template_list.html", {"templates": templates})
+
+
+@login_required
+def template_create(request):
+    if request.method == "POST":
+        form = WorkoutTemplateForm(request.POST)
+
+        if form.is_valid():
+            template = form.save(commit=False)
+            template.user = request.user
+            template.save()
+            messages.success(request, "Template created successfully.")
+            return redirect("tracker:template_detail", pk=template.pk)
+    else:
+        form = WorkoutTemplateForm()
+
+    return render(request, "tracker/workout_template_form.html", {"form": form})
+
+
+@login_required
+def template_detail(request, pk):
+    template = get_object_or_404(WorkoutTemplate, pk=pk, user=request.user)
+
+    return render(request, "tracker/workout_template_detail.html", {"template": template})
+
+
+@login_required
+def template_set_create(request, pk):
+    template = get_object_or_404(WorkoutTemplate, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        form = WorkoutTemplateSetForm(request.POST)
+        form.fields["exercise"].queryset = available_exercises_for_user(request.user)
+
+        if form.is_valid():
+            template_set = form.save(commit=False)
+            template_set.template = template
+            template_set.save()
+            messages.success(request, "Template set added successfully.")
+            return redirect("tracker:template_detail", pk=template.pk)
+    else:
+        next_set_number = template.sets.count() + 1
+        form = WorkoutTemplateSetForm(initial={"set_number": next_set_number})
+        form.fields["exercise"].queryset = available_exercises_for_user(request.user)
+
+    return render(
+        request,
+        "tracker/workout_template_set_form.html",
+        {"form": form, "template": template},
     )
 
 @login_required

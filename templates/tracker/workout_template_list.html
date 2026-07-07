@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Templates | MiniFit{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Workout Templates</h1>
+    <a href="{% url 'tracker:template_create' %}" class="btn btn-primary">Add Template</a>
+</div>
+
+{% if templates %}
+    <div class="list-group">
+        {% for template in templates %}
+            <a href="{% url 'tracker:template_detail' template.pk %}" class="list-group-item list-group-item-action">
+                <strong>{{ template.name }}</strong>
+                <div class="text-muted small">{{ template.sets.count }} sets</div>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">No templates yet.</div>
+{% endif %}
+{% endblock %}

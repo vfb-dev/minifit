@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}{{ template.name }} | MiniFit{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'tracker:template_list' %}" class="btn btn-outline-secondary btn-sm">Back to templates</a>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-1">{{ template.name }}</h1>
+        <p class="text-muted mb-0">{{ template.notes }}</p>
+    </div>
+
+    <a href="{% url 'tracker:template_set_create' template.pk %}" class="btn btn-primary">Add Set</a>
+</div>
+
+{% if template.sets.all %}
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Exercise</th>
+                <th>Set</th>
+                <th>Reps</th>
+                <th>Weight</th>
+                <th>Duration</th>
+                <th>Distance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for set in template.sets.all %}
+                <tr>
+                    <td>{{ set.exercise.name }}</td>
+                    <td>{{ set.set_number }}</td>
+                    <td>{{ set.reps|default:"-" }}</td>
+                    <td>{% if set.weight_kg %}{{ set.weight_kg }} kg{% else %}-{% endif %}</td>
+                    <td>{% if set.duration_minutes %}{{ set.duration_minutes }} min{% else %}-{% endif %}</td>
+                    <td>{% if set.distance_km %}{{ set.distance_km }} km{% else %}-{% endif %}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="alert alert-info">No sets added to this template yet.</div>
+{% endif %}
+{% endblock %}

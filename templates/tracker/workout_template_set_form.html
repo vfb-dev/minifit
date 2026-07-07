@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Add Template Set | MiniFit{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'tracker:template_detail' template.pk %}" class="btn btn-outline-secondary btn-sm">Back to template</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h1 class="h3 mb-4">Add Template Set</h1>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn btn-primary" type="submit">Save Set</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

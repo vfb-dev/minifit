@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
-from .models import BodyMetric, Exercise, Goal, Workout, WorkoutSet
+from .models import BodyMetric, Exercise, Goal, Workout, WorkoutSet, WorkoutTemplate, WorkoutTemplateSet
 
 User = get_user_model()
 
@@ -36,6 +36,29 @@ class WorkoutSetForm(forms.ModelForm):
             "duration_minutes",
             "distance_km",
         ]
+        widgets = {
+            "exercise": forms.Select(attrs={"class": "form-select"}),
+            "set_number": forms.NumberInput(attrs={"class": "form-control"}),
+            "reps": forms.NumberInput(attrs={"class": "form-control"}),
+            "weight_kg": forms.NumberInput(attrs={"class": "form-control", "step": "0.01"}),
+            "duration_minutes": forms.NumberInput(attrs={"class": "form-control"}),
+            "distance_km": forms.NumberInput(attrs={"class": "form-control", "step": "0.01"}),
+        }
+
+class WorkoutTemplateForm(forms.ModelForm):
+    class Meta:
+        model = WorkoutTemplate
+        fields = ["name", "notes"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "notes": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
+
+
+class WorkoutTemplateSetForm(forms.ModelForm):
+    class Meta:
+        model = WorkoutTemplateSet
+        fields = ["exercise", "set_number", "reps", "weight_kg", "duration_minutes", "distance_km"]
         widgets = {
             "exercise": forms.Select(attrs={"class": "form-select"}),
             "set_number": forms.NumberInput(attrs={"class": "form-control"}),
