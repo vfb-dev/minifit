@@ -41,4 +41,5 @@ urlpatterns = [
     path("register/", views.register, name="register"),
     path("profile/", views.profile, name="profile"),
     path("profile/edit/", views.profile_update, name="profile_update"),
+    path("records/", views.records, name="records"),
 ]

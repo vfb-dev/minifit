@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.db.models import F, Q, Sum, Max
+from django.db.models import F, Q, Sum, Max, Count
 from django.core.paginator import Paginator
 
 from django.contrib import messages
@@ -866,3 +866,26 @@ def goal_delete(request, pk):
         return redirect("tracker:goal_list")
 
     return render(request, "tracker/goal_confirm_delete.html", {"goal": goal})
+
+@login_required
+def records(request):
+    records = (
+        WorkoutSet.objects
+        .filter(workout__user=request.user)
+        .values("exercise__id", "exercise__name", "exercise__muscle_group")
+        .annotate(
+            total_sets=Count("id"),
+            best_weight=Max("weight_kg"),
+            best_reps=Max("reps"),
+            total_volume=Sum(F("reps") * F("weight_kg")),
+        )
+        .order_by("exercise__name")
+    )
+
+    return render(
+        request,
+        "tracker/records.html",
+        {
+            "records": records,
+        },
+    )
