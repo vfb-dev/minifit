@@ -1,5 +1,6 @@
 import csv
-from datetime import timedelta
+import calendar
+from datetime import date, timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -176,6 +177,61 @@ def workout_list(request):
     )
 
 @login_required
+def workout_calendar(request):
+    today = timezone.localdate()
+
+    try:
+        year = int(request.GET.get("year", today.year))
+        month = int(request.GET.get("month", today.month))
+        first_day = date(year, month, 1)
+    except ValueError:
+        year = today.year
+        month = today.month
+        first_day = date(year, month, 1)
+
+    calendar_weeks = calendar.Calendar(firstweekday=0).monthdatescalendar(year, month)
+
+    workouts = Workout.objects.filter(
+        user=request.user,
+        date__year=year,
+        date__month=month,
+    )
+
+    workouts_by_date = {}
+    for workout in workouts:
+        workouts_by_date.setdefault(workout.date, []).append(workout)
+
+    weeks = []
+    for week in calendar_weeks:
+        weeks.append([
+            {
+                "date": day,
+                "is_current_month": day.month == month,
+                "workouts": workouts_by_date.get(day, []),
+            }
+            for day in week
+        ])
+
+    previous_month = month - 1 or 12
+    previous_year = year - 1 if month == 1 else year
+    next_month = month + 1 if month < 12 else 1
+    next_year = year + 1 if month == 12 else year
+
+    return render(
+        request,
+        "tracker/workout_calendar.html",
+        {
+            "weeks": weeks,
+            "month_name": first_day.strftime("%B"),
+            "year": year,
+            "previous_month": previous_month,
+            "previous_year": previous_year,
+            "next_month": next_month,
+            "next_year": next_year,
+        },
+    )
+
+@login_required
 def workout_detail(request, pk):
     workout = get_object_or_404(Workout, pk=pk, user=request.user)
     sets = workout.sets.select_related("exercise")
@@ -337,6 +393,7 @@ def workout_set_create(request, pk):
 
     if request.method == "POST":
         form = WorkoutSetForm(request.POST)
+        form.fields["exercise"].queryset = available_exercises_for_user(request.user)
 
         if form.is_valid():
             workout_set = form.save(commit=False)
@@ -365,6 +422,7 @@ def workout_set_update(request, pk):
 
     if request.method == "POST":
         form = WorkoutSetForm(request.POST, instance=workout_set)
+        form.fields["exercise"].queryset = available_exercises_for_user(request.user)
 
         if form.is_valid():
             form.save()

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Calendar | MiniFit{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a class="btn btn-outline-secondary" href="?year={{ previous_year }}&month={{ previous_month }}">Previous</a>
+
+    <h1 class="h3 mb-0">{{ month_name }} {{ year }}</h1>
+
+    <a class="btn btn-outline-secondary" href="?year={{ next_year }}&month={{ next_month }}">Next</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered bg-white align-top">
+        <thead>
+            <tr>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
+                <th>Sun</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for week in weeks %}
+                <tr>
+                    {% for day in week %}
+                        <td class="{% if not day.is_current_month %}bg-light text-muted{% endif %}" style="min-width: 140px; height: 120px;">
+                            <div class="fw-bold mb-2">{{ day.date.day }}</div>
+
+                            {% for workout in day.workouts %}
+                                <a href="{% url 'tracker:workout_detail' workout.pk %}" class="badge bg-primary text-decoration-none d-block mb-1 text-wrap">
+                                    {{ workout.title }}
+                                </a>
+                            {% empty %}
+                                {% if day.is_current_month %}
+                                    <span class="text-muted small">No workouts</span>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

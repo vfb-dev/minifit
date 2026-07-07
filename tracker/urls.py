@@ -6,6 +6,7 @@ app_name = "tracker"
 
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
+    path("calendar/", views.workout_calendar, name="workout_calendar"),
     path("workouts/", views.workout_list, name="workout_list"),
     path("workouts/add/", views.workout_create, name="workout_create"),
     path("workouts/<int:pk>/sets/add/", views.workout_set_create, name="workout_set_create"),
