@@ -17,6 +17,7 @@ urlpatterns = [
     path("templates/add/", views.template_create, name="template_create"),
     path("templates/<int:pk>/", views.template_detail, name="template_detail"),
     path("templates/<int:pk>/sets/add/", views.template_set_create, name="template_set_create"),
+    path("templates/<int:pk>/start/", views.template_start_workout, name="template_start_workout"),
     path("exercises/", views.exercise_list, name="exercise_list"),
     path("exercises/add/", views.exercise_create, name="exercise_create"),
     path("exercises/<int:pk>/", views.exercise_detail, name="exercise_detail"),

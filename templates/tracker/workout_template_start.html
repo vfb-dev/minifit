@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Start Workout | MiniFit{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="h3 mb-3">Start Workout From Template</h1>
+
+        <p>
+            Start a new workout from
+            <strong>{{ template.name }}</strong>
+            for today?
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button class="btn btn-success" type="submit">Start Workout</button>
+            <a href="{% url 'tracker:template_detail' template.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

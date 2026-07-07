@@ -367,13 +367,11 @@ def workout_set_delete(request, pk):
         },
     )
 
-
 @login_required
 def template_list(request):
     templates = WorkoutTemplate.objects.filter(user=request.user)
 
     return render(request, "tracker/workout_template_list.html", {"templates": templates})
-
 
 @login_required
 def template_create(request):
@@ -391,13 +389,11 @@ def template_create(request):
 
     return render(request, "tracker/workout_template_form.html", {"form": form})
 
-
 @login_required
 def template_detail(request, pk):
     template = get_object_or_404(WorkoutTemplate, pk=pk, user=request.user)
 
     return render(request, "tracker/workout_template_detail.html", {"template": template})
-
 
 @login_required
 def template_set_create(request, pk):
@@ -422,6 +418,40 @@ def template_set_create(request, pk):
         request,
         "tracker/workout_template_set_form.html",
         {"form": form, "template": template},
+    )
+
+@login_required
+def template_start_workout(request, pk):
+    template = get_object_or_404(WorkoutTemplate, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        workout = Workout.objects.create(
+            user=request.user,
+            title=template.name,
+            date=timezone.localdate(),
+            notes=template.notes,
+        )
+
+        for template_set in template.sets.all():
+            WorkoutSet.objects.create(
+                workout=workout,
+                exercise=template_set.exercise,
+                set_number=template_set.set_number,
+                reps=template_set.reps,
+                weight_kg=template_set.weight_kg,
+                duration_minutes=template_set.duration_minutes,
+                distance_km=template_set.distance_km,
+            )
+
+        messages.success(request, "Workout started from template.")
+        return redirect("tracker:workout_detail", pk=workout.pk)
+
+    return render(
+        request,
+        "tracker/workout_template_start.html",
+        {
+            "template": template,
+        },
     )
 
 @login_required

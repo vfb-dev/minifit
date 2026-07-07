@@ -13,7 +13,10 @@
         <p class="text-muted mb-0">{{ template.notes }}</p>
     </div>
 
-    <a href="{% url 'tracker:template_set_create' template.pk %}" class="btn btn-primary">Add Set</a>
+    <div class="d-flex gap-2">
+        <a href="{% url 'tracker:template_start_workout' template.pk %}" class="btn btn-success">Start Workout</a>
+        <a href="{% url 'tracker:template_set_create' template.pk %}" class="btn btn-primary">Add Set</a>
+    </div>
 </div>
 
 {% if template.sets.all %}
