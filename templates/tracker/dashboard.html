@@ -3,72 +3,104 @@
 {% block title %}Dashboard | MiniFit{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<section class="dashboard-hero mb-4">
     <div>
-        <h1 class="h3 mb-1">Dashboard</h1>
-        <p class="text-muted mb-0">Your fitness progress at a glance.</p>
+        <div class="eyebrow">Training command center</div>
+        <h1>Dashboard</h1>
+        <p>Watch your training volume, body metrics, and next actions from one focused view.</p>
     </div>
 
-    <a href="{% url 'tracker:workout_create' %}" class="btn btn-primary">Add Workout</a>
-</div>
+    <div class="hero-actions">
+        <a href="{% url 'tracker:workout_create' %}" class="btn btn-primary">
+            <i data-lucide="plus"></i><span>Log Workout</span>
+        </a>
+        <a href="{% url 'tracker:workout_calendar' %}" class="btn btn-outline-light">
+            <i data-lucide="calendar-days"></i><span>Calendar</span>
+        </a>
+    </div>
+</section>
 
 <div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card">
+    <div class="col-sm-6 col-xl-2">
+        <div class="card metric-card">
             <div class="card-body">
-                <div class="text-muted small">Workouts</div>
-                <div class="display-6 fw-bold">{{ workout_count }}</div>
+                <div class="metric-top">
+                    <span>Workouts</span>
+                    <span class="metric-icon"><i data-lucide="dumbbell"></i></span>
+                </div>
+                <div class="metric-value">{{ workout_count }}</div>
+                <p class="metric-note">Logged sessions</p>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card">
+    <div class="col-sm-6 col-xl-2">
+        <div class="card metric-card accent-coral">
             <div class="card-body">
-                <div class="text-muted small">Total Sets</div>
-                <div class="display-6 fw-bold">{{ total_sets }}</div>
+                <div class="metric-top">
+                    <span>Total Sets</span>
+                    <span class="metric-icon"><i data-lucide="layers-3"></i></span>
+                </div>
+                <div class="metric-value">{{ total_sets }}</div>
+                <p class="metric-note">Working sets</p>
             </div>
         </div>
     </div>
 
-    <div class="col-md">
-        <div class="card">
+    <div class="col-sm-6 col-xl-2">
+        <div class="card metric-card accent-gold">
             <div class="card-body">
-                <div class="text-muted small">Total Volume</div>
-                <div class="display-6 fw-bold">{{ total_volume|floatformat:0 }} kg</div>
+                <div class="metric-top">
+                    <span>Volume</span>
+                    <span class="metric-icon"><i data-lucide="bar-chart-3"></i></span>
+                </div>
+                <div class="metric-value">{{ total_volume|floatformat:0 }}</div>
+                <p class="metric-note">kg lifted</p>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card">
+    <div class="col-sm-6 col-xl-2">
+        <div class="card metric-card accent-blue">
             <div class="card-body">
-                <div class="text-muted small">Latest Weight</div>
-                <div class="display-6 fw-bold">
+                <div class="metric-top">
+                    <span>Latest Weight</span>
+                    <span class="metric-icon"><i data-lucide="scale"></i></span>
+                </div>
+                <div class="metric-value">
                     {% if latest_metric %}
-                        {{ latest_metric.weight_kg }} kg
+                        {{ latest_metric.weight_kg }}
                     {% else %}
                         -
                     {% endif %}
                 </div>
+                <p class="metric-note">kg body weight</p>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card">
+    <div class="col-sm-6 col-xl-2">
+        <div class="card metric-card accent-violet">
             <div class="card-body">
-                <div class="text-muted small">Exercises</div>
-                <div class="display-6 fw-bold">{{ exercise_count }}</div>
+                <div class="metric-top">
+                    <span>Exercises</span>
+                    <span class="metric-icon"><i data-lucide="list-plus"></i></span>
+                </div>
+                <div class="metric-value">{{ exercise_count }}</div>
+                <p class="metric-note">Movement library</p>
             </div>
         </div>
     </div>
 
-    <div class="col-md">
-        <div class="card">
+    <div class="col-sm-6 col-xl-2">
+        <div class="card metric-card">
             <div class="card-body">
-                <div class="text-muted small">Active Goals</div>
-                <div class="display-6 fw-bold">{{ active_goals }}</div>
+                <div class="metric-top">
+                    <span>Goals</span>
+                    <span class="metric-icon"><i data-lucide="target"></i></span>
+                </div>
+                <div class="metric-value">{{ active_goals }}</div>
+                <p class="metric-note">Active targets</p>
             </div>
         </div>
     </div>
@@ -76,15 +108,24 @@
 
 <div class="row g-4 mb-4">
     <div class="col-lg-6">
-        <div class="card">
+        <div class="card chart-card">
             <div class="card-body">
-                <h2 class="h5 mb-3">Weight Progress</h2>
+                <div class="chart-title">
+                    <div>
+                        <h2>Weight Progress</h2>
+                        <span>Recent body metric entries</span>
+                    </div>
+                    <i data-lucide="trending-up"></i>
+                </div>
 
                 {% if weight_values %}
-                    <canvas id="weightChart" height="140"></canvas>
+                    <div class="chart-frame">
+                        <canvas id="weightChart"></canvas>
+                    </div>
                 {% else %}
-                    <div class="alert alert-info mb-0">
-                        Add body metrics to see your weight progress.
+                    <div class="empty-state">
+                        <i data-lucide="scale"></i>
+                        <span>Add body metrics to see your weight progress.</span>
                     </div>
                 {% endif %}
             </div>
@@ -92,15 +133,24 @@
     </div>
 
     <div class="col-lg-6">
-        <div class="card">
+        <div class="card chart-card">
             <div class="card-body">
-                <h2 class="h5 mb-3">Workouts Per Week</h2>
+                <div class="chart-title">
+                    <div>
+                        <h2>Workouts Per Week</h2>
+                        <span>Weekly training consistency</span>
+                    </div>
+                    <i data-lucide="bar-chart-3"></i>
+                </div>
 
                 {% if workout_week_values %}
-                    <canvas id="workoutChart" height="140"></canvas>
+                    <div class="chart-frame">
+                        <canvas id="workoutChart"></canvas>
+                    </div>
                 {% else %}
-                    <div class="alert alert-info mb-0">
-                        Add workouts to see your weekly training chart.
+                    <div class="empty-state">
+                        <i data-lucide="calendar-plus"></i>
+                        <span>Add workouts to see your weekly training chart.</span>
                     </div>
                 {% endif %}
             </div>
@@ -110,64 +160,98 @@
 
 <div class="row g-4">
     <div class="col-lg-8">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h5 mb-0">Recent Workouts</h2>
-            <a href="{% url 'tracker:workout_list' %}" class="btn btn-outline-secondary btn-sm">View All</a>
+        <div class="section-heading">
+            <div>
+                <h2 class="h5">Recent Workouts</h2>
+                <p class="mb-0">Your latest training sessions.</p>
+            </div>
+            <a href="{% url 'tracker:workout_list' %}" class="btn btn-outline-secondary btn-sm">
+                <i data-lucide="arrow-right"></i><span>View All</span>
+            </a>
         </div>
 
         {% if recent_workouts %}
             <div class="list-group">
                 {% for workout in recent_workouts %}
-                    <a href="{% url 'tracker:workout_detail' workout.pk %}" class="list-group-item list-group-item-action">
-                        <div class="d-flex justify-content-between">
+                    <a href="{% url 'tracker:workout_detail' workout.pk %}" class="list-group-item list-group-item-action feed-item">
+                        <span class="feed-marker"><i data-lucide="dumbbell"></i></span>
+                        <span class="feed-content">
                             <strong>{{ workout.title }}</strong>
-                            <span class="text-muted">{{ workout.date }}</span>
-                        </div>
-                        <small class="text-muted">{{ workout.sets.count }} sets</small>
+                            <span class="feed-meta">
+                                <span>{{ workout.date }}</span>
+                                <span>{{ workout.sets.count }} sets</span>
+                            </span>
+                        </span>
+                        <i data-lucide="chevron-right"></i>
                     </a>
                 {% endfor %}
             </div>
         {% else %}
-            <div class="alert alert-info">No workouts yet. Add your first workout.</div>
+            <div class="empty-state">
+                <i data-lucide="calendar-plus"></i>
+                <span>No workouts yet. Add your first workout.</span>
+            </div>
         {% endif %}
     </div>
 
     <div class="col-lg-4">
-        <h2 class="h5 mb-3">Quick Actions</h2>
-
-        <div class="d-grid gap-2">
-            <a href="{% url 'tracker:workout_create' %}" class="btn btn-primary">Add Workout</a>
-            <a href="{% url 'tracker:exercise_create' %}" class="btn btn-outline-primary">Add Exercise</a>
-            <a href="{% url 'tracker:body_metric_create' %}" class="btn btn-outline-primary">Add Body Metric</a>
-        </div>
-
-        <div class="mt-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="h5 mb-0">Active Goals</h2>
-                <a href="{% url 'tracker:goal_list' %}" class="btn btn-outline-secondary btn-sm">View All</a>
+        <div class="section-heading">
+            <div>
+                <h2 class="h5">Quick Actions</h2>
+                <p class="mb-0">Keep the next entry close.</p>
             </div>
-
-            {% if active_goal_list %}
-                <div class="list-group">
-                    {% for goal in active_goal_list %}
-                        <div class="list-group-item">
-                            <strong>{{ goal.title }}</strong>
-                            <div class="text-muted small">
-                                {{ goal.get_goal_type_display }}
-                                {% if goal.target_value %}
-                                    · {{ goal.target_value }} {{ goal.unit }}
-                                {% endif %}
-                                {% if goal.deadline %}
-                                    · {{ goal.deadline }}
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="alert alert-info">No active goals yet.</div>
-            {% endif %}
         </div>
+
+        <div class="action-stack mb-4">
+            <a href="{% url 'tracker:workout_create' %}" class="action-tile">
+                <span><i data-lucide="plus"></i> Add Workout</span>
+                <i data-lucide="arrow-up-right"></i>
+            </a>
+            <a href="{% url 'tracker:exercise_create' %}" class="action-tile">
+                <span><i data-lucide="list-plus"></i> Add Exercise</span>
+                <i data-lucide="arrow-up-right"></i>
+            </a>
+            <a href="{% url 'tracker:body_metric_create' %}" class="action-tile">
+                <span><i data-lucide="scale"></i> Add Body Metric</span>
+                <i data-lucide="arrow-up-right"></i>
+            </a>
+        </div>
+
+        <div class="section-heading">
+            <div>
+                <h2 class="h5">Active Goals</h2>
+                <p class="mb-0">Targets still in motion.</p>
+            </div>
+            <a href="{% url 'tracker:goal_list' %}" class="btn btn-outline-secondary btn-sm">
+                <i data-lucide="arrow-right"></i><span>View All</span>
+            </a>
+        </div>
+
+        {% if active_goal_list %}
+            <div class="list-group">
+                {% for goal in active_goal_list %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between gap-3">
+                            <strong>{{ goal.title }}</strong>
+                            <span class="badge bg-secondary">{{ goal.get_goal_type_display }}</span>
+                        </div>
+                        <div class="feed-meta mt-2">
+                            {% if goal.target_value %}
+                                <span>{{ goal.target_value }} {{ goal.unit }}</span>
+                            {% endif %}
+                            {% if goal.deadline %}
+                                <span>{{ goal.deadline }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i data-lucide="target"></i>
+                <span>No active goals yet.</span>
+            </div>
+        {% endif %}
     </div>
 </div>
 
@@ -180,6 +264,8 @@
 <script>
     const weightCanvas = document.getElementById("weightChart");
     const workoutCanvas = document.getElementById("workoutChart");
+    const gridColor = "rgba(23, 33, 30, 0.08)";
+    const tickColor = "#68756f";
 
     if (weightCanvas) {
         const weightLabels = JSON.parse(document.getElementById("weight-labels").textContent);
@@ -192,9 +278,30 @@
                 datasets: [{
                     label: "Weight kg",
                     data: weightValues,
-                    borderWidth: 2,
-                    tension: 0.3
+                    borderColor: "#0f7b63",
+                    backgroundColor: "rgba(15, 123, 99, 0.14)",
+                    fill: true,
+                    borderWidth: 3,
+                    pointRadius: 3,
+                    pointBackgroundColor: "#0f7b63",
+                    tension: 0.34
                 }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: tickColor }
+                    },
+                    y: {
+                        grid: { color: gridColor },
+                        ticks: { color: tickColor }
+                    }
+                }
             }
         });
     }
@@ -210,8 +317,28 @@
                 datasets: [{
                     label: "Workouts",
                     data: workoutWeekValues,
-                    borderWidth: 1
+                    borderRadius: 8,
+                    backgroundColor: "#ef6f4e",
+                    borderWidth: 0
                 }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: tickColor }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        precision: 0,
+                        grid: { color: gridColor },
+                        ticks: { color: tickColor, stepSize: 1 }
+                    }
+                }
             }
         });
     }

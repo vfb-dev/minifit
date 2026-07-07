@@ -4,56 +4,79 @@
 
 {% block content %}
 <div class="mb-4">
-    <a href="{% url 'tracker:template_list' %}" class="btn btn-outline-secondary btn-sm">Back to templates</a>
+    <a href="{% url 'tracker:template_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i data-lucide="arrow-left"></i><span>Back to templates</span>
+    </a>
 </div>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-        <h1 class="h3 mb-1">{{ template.name }}</h1>
-        <p class="text-muted mb-0">{{ template.notes }}</p>
+<div class="profile-banner mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <span class="profile-avatar"><i data-lucide="clipboard-list"></i></span>
+        <div>
+            <div class="eyebrow">Workout template</div>
+            <h1 class="h3 mb-1">{{ template.name }}</h1>
+            <p class="text-muted mb-0">{{ template.notes }}</p>
+        </div>
     </div>
 
-    <div class="d-flex gap-2">
-        <a href="{% url 'tracker:template_start_workout' template.pk %}" class="btn btn-success">Start Workout</a>
-        <a href="{% url 'tracker:template_set_create' template.pk %}" class="btn btn-primary">Add Set</a>
-        <a href="{% url 'tracker:template_update' template.pk %}" class="btn btn-outline-primary">Edit</a>
-        <a href="{% url 'tracker:template_delete' template.pk %}" class="btn btn-outline-danger">Delete</a>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'tracker:template_start_workout' template.pk %}" class="btn btn-success">
+            <i data-lucide="play"></i><span>Start Workout</span>
+        </a>
+        <a href="{% url 'tracker:template_set_create' template.pk %}" class="btn btn-primary">
+            <i data-lucide="plus"></i><span>Add Set</span>
+        </a>
+        <a href="{% url 'tracker:template_update' template.pk %}" class="btn btn-outline-primary">
+            <i data-lucide="pencil"></i><span>Edit</span>
+        </a>
+        <a href="{% url 'tracker:template_delete' template.pk %}" class="btn btn-outline-danger">
+            <i data-lucide="trash-2"></i><span>Delete</span>
+        </a>
     </div>
 </div>
 
 {% if template.sets.all %}
-    <table class="table table-striped align-middle">
-        <thead>
-            <tr>
-                <th>Exercise</th>
-                <th>Set</th>
-                <th>Reps</th>
-                <th>Weight</th>
-                <th>Duration</th>
-                <th>Distance</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for set in template.sets.all %}
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
                 <tr>
-                    <td>{{ set.exercise.name }}</td>
-                    <td>{{ set.set_number }}</td>
-                    <td>{{ set.reps|default:"-" }}</td>
-                    <td>{% if set.weight_kg %}{{ set.weight_kg }} kg{% else %}-{% endif %}</td>
-                    <td>{% if set.duration_minutes %}{{ set.duration_minutes }} min{% else %}-{% endif %}</td>
-                    <td>{% if set.distance_km %}{{ set.distance_km }} km{% else %}-{% endif %}</td>
-                    <td>
-                        <div class="d-flex gap-2">
-                            <a href="{% url 'tracker:template_set_update' set.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
-                            <a href="{% url 'tracker:template_set_delete' set.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
-                        </div>
-                    </td>
+                    <th>Exercise</th>
+                    <th>Set</th>
+                    <th>Reps</th>
+                    <th>Weight</th>
+                    <th>Duration</th>
+                    <th>Distance</th>
+                    <th>Actions</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for set in template.sets.all %}
+                    <tr>
+                        <td><strong>{{ set.exercise.name }}</strong></td>
+                        <td>{{ set.set_number }}</td>
+                        <td>{{ set.reps|default:"-" }}</td>
+                        <td>{% if set.weight_kg %}{{ set.weight_kg }} kg{% else %}-{% endif %}</td>
+                        <td>{% if set.duration_minutes %}{{ set.duration_minutes }} min{% else %}-{% endif %}</td>
+                        <td>{% if set.distance_km %}{{ set.distance_km }} km{% else %}-{% endif %}</td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="{% url 'tracker:template_set_update' set.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i data-lucide="pencil"></i><span>Edit</span>
+                                </a>
+                                <a href="{% url 'tracker:template_set_delete' set.pk %}" class="btn btn-outline-danger btn-sm">
+                                    <i data-lucide="trash-2"></i><span>Delete</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% else %}
-    <div class="alert alert-info">No sets added to this template yet.</div>
+    <div class="empty-state">
+        <i data-lucide="list-plus"></i>
+        <span>No sets added to this template yet.</span>
+    </div>
 {% endif %}
 {% endblock %}

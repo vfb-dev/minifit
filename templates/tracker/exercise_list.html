@@ -3,34 +3,51 @@
 {% block title %}Exercises | MiniFit{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Exercises</h1>
-    <a href="{% url 'tracker:exercise_create' %}" class="btn btn-primary">Add Exercise</a>
+<div class="page-heading">
+    <div>
+        <div class="eyebrow">Movement library</div>
+        <h1 class="h3">Exercises</h1>
+        <p class="mb-0">Browse shared movements and your own custom exercises.</p>
+    </div>
+    <a href="{% url 'tracker:exercise_create' %}" class="btn btn-primary">
+        <i data-lucide="plus"></i><span>Add Exercise</span>
+    </a>
 </div>
 
 {% if exercises %}
     <div class="list-group">
         {% for exercise in exercises %}
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
+            <div class="list-group-item feed-item">
+                <span class="feed-marker"><i data-lucide="list-plus"></i></span>
+                <span class="feed-content">
                     <a href="{% url 'tracker:exercise_detail' exercise.pk %}" class="fw-bold text-decoration-none">
                         {{ exercise.name }}
                     </a>
-                    <span class="badge bg-secondary ms-2">{{ exercise.get_muscle_group_display }}</span>
-                </div>
+                    <span class="feed-meta mt-1">
+                        <span class="badge bg-secondary">{{ exercise.get_muscle_group_display }}</span>
+                        {% if exercise.created_by != user %}
+                            <span class="badge bg-light text-dark">Shared</span>
+                        {% endif %}
+                    </span>
+                </span>
 
                 {% if exercise.created_by == user %}
-                    <div class="d-flex gap-2">
-                        <a href="{% url 'tracker:exercise_update' exercise.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
-                        <a href="{% url 'tracker:exercise_delete' exercise.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
-                    </div>
-                {% else %}
-                    <span class="badge bg-light text-dark">Shared</span>
+                    <span class="d-flex flex-wrap gap-2">
+                        <a href="{% url 'tracker:exercise_update' exercise.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i data-lucide="pencil"></i><span>Edit</span>
+                        </a>
+                        <a href="{% url 'tracker:exercise_delete' exercise.pk %}" class="btn btn-outline-danger btn-sm">
+                            <i data-lucide="trash-2"></i><span>Delete</span>
+                        </a>
+                    </span>
                 {% endif %}
             </div>
         {% endfor %}
     </div>
 {% else %}
-    <div class="alert alert-info">No exercises yet. Add your first one.</div>
+    <div class="empty-state">
+        <i data-lucide="list-plus"></i>
+        <span>No exercises yet. Add your first one.</span>
+    </div>
 {% endif %}
 {% endblock %}

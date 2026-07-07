@@ -3,9 +3,12 @@
 {% block title %}Records | MiniFit{% endblock %}
 
 {% block content %}
-<div class="mb-4">
-    <h1 class="h3 mb-1">Records</h1>
-    <p class="text-muted mb-0">Your best numbers by exercise.</p>
+<div class="page-heading">
+    <div>
+        <div class="eyebrow">Personal bests</div>
+        <h1 class="h3">Records</h1>
+        <p class="mb-0">Your best numbers by exercise.</p>
+    </div>
 </div>
 
 {% if records %}
@@ -25,11 +28,11 @@
                 {% for record in records %}
                     <tr>
                         <td>
-                            <a href="{% url 'tracker:exercise_detail' record.exercise__id %}">
+                            <a href="{% url 'tracker:exercise_detail' record.exercise__id %}" class="fw-bold text-decoration-none">
                                 {{ record.exercise__name }}
                             </a>
                         </td>
-                        <td>{{ record.exercise__muscle_group|title }}</td>
+                        <td><span class="badge bg-secondary">{{ record.exercise__muscle_group|title }}</span></td>
                         <td>{% if record.best_weight %}{{ record.best_weight }} kg{% else %}-{% endif %}</td>
                         <td>{{ record.best_reps|default:"-" }}</td>
                         <td>{{ record.total_sets }}</td>
@@ -40,6 +43,9 @@
         </table>
     </div>
 {% else %}
-    <div class="alert alert-info">No records yet. Add workout sets to build your records.</div>
+    <div class="empty-state">
+        <i data-lucide="trophy"></i>
+        <span>No records yet. Add workout sets to build your records.</span>
+    </div>
 {% endif %}
 {% endblock %}

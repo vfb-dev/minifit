@@ -3,16 +3,23 @@
 {% block title %}Calendar | MiniFit{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <a class="btn btn-outline-secondary" href="?year={{ previous_year }}&month={{ previous_month }}">Previous</a>
+<div class="page-heading">
+    <a class="btn btn-outline-secondary" href="?year={{ previous_year }}&month={{ previous_month }}">
+        <i data-lucide="chevron-left"></i><span>Previous</span>
+    </a>
 
-    <h1 class="h3 mb-0">{{ month_name }} {{ year }}</h1>
+    <div class="text-center">
+        <div class="eyebrow">Training calendar</div>
+        <h1 class="h3">{{ month_name }} {{ year }}</h1>
+    </div>
 
-    <a class="btn btn-outline-secondary" href="?year={{ next_year }}&month={{ next_month }}">Next</a>
+    <a class="btn btn-outline-secondary" href="?year={{ next_year }}&month={{ next_month }}">
+        <span>Next</span><i data-lucide="chevron-right"></i>
+    </a>
 </div>
 
-<div class="table-responsive">
-    <table class="table table-bordered bg-white align-top">
+<div class="table-responsive calendar-card">
+    <table class="table table-bordered align-top calendar-table">
         <thead>
             <tr>
                 <th>Mon</th>
@@ -28,16 +35,16 @@
             {% for week in weeks %}
                 <tr>
                     {% for day in week %}
-                        <td class="{% if not day.is_current_month %}bg-light text-muted{% endif %}" style="min-width: 140px; height: 120px;">
-                            <div class="fw-bold mb-2">{{ day.date.day }}</div>
+                        <td class="calendar-day {% if not day.is_current_month %}is-muted{% endif %}">
+                            <span class="calendar-number">{{ day.date.day }}</span>
 
                             {% for workout in day.workouts %}
-                                <a href="{% url 'tracker:workout_detail' workout.pk %}" class="badge bg-primary text-decoration-none d-block mb-1 text-wrap">
+                                <a href="{% url 'tracker:workout_detail' workout.pk %}" class="calendar-pill">
                                     {{ workout.title }}
                                 </a>
                             {% empty %}
                                 {% if day.is_current_month %}
-                                    <span class="text-muted small">No workouts</span>
+                                    <span class="calendar-empty">No workouts</span>
                                 {% endif %}
                             {% endfor %}
                         </td>

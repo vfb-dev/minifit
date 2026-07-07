@@ -3,33 +3,41 @@
 {% block title %}Profile | MiniFit{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1 class="h3 mb-1">Profile</h1>
-        <p class="text-muted mb-0">Your MiniFit account summary.</p>
+<div class="profile-banner mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <span class="profile-avatar">{{ user.username|slice:":1"|upper }}</span>
+        <div>
+            <div class="eyebrow">Account</div>
+            <h1 class="h3 mb-1">{{ user.username }}</h1>
+            <p class="text-muted mb-0">Your MiniFit account summary and exports.</p>
+        </div>
     </div>
     
-    <div>
-        <a href="{% url 'tracker:profile_update' %}" class="btn btn-primary">Edit Profile</a>
-        <a href="{% url 'password_change' %}" class="btn btn-outline-primary">Change Password</a>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'tracker:profile_update' %}" class="btn btn-primary">
+            <i data-lucide="pencil"></i><span>Edit Profile</span>
+        </a>
+        <a href="{% url 'password_change' %}" class="btn btn-outline-primary">
+            <i data-lucide="key-round"></i><span>Change Password</span>
+        </a>
     </div>
 </div>
 
 <div class="row g-3 mb-4">
     <div class="col-md-4">
-        <div class="card">
+        <div class="card metric-card">
             <div class="card-body">
-                <div class="text-muted small">Username</div>
-                <div class="h4 mb-0">{{ user.username }}</div>
+                <div class="metric-top"><span>Username</span><span class="metric-icon"><i data-lucide="user"></i></span></div>
+                <div class="h4 mb-0 mt-4">{{ user.username }}</div>
             </div>
         </div>
     </div>
 
     <div class="col-md-4">
-        <div class="card">
+        <div class="card metric-card accent-blue">
             <div class="card-body">
-                <div class="text-muted small">Email</div>
-                <div class="h4 mb-0">
+                <div class="metric-top"><span>Email</span><span class="metric-icon"><i data-lucide="mail"></i></span></div>
+                <div class="h4 mb-0 mt-4">
                     {% if user.email %}
                         {{ user.email }}
                     {% else %}
@@ -41,50 +49,62 @@
     </div>
 
     <div class="col-md-4">
-        <div class="card">
+        <div class="card metric-card accent-gold">
             <div class="card-body">
-                <div class="text-muted small">Joined</div>
-                <div class="h4 mb-0">{{ user.date_joined|date:"M d, Y" }}</div>
+                <div class="metric-top"><span>Joined</span><span class="metric-icon"><i data-lucide="calendar-check"></i></span></div>
+                <div class="h4 mb-0 mt-4">{{ user.date_joined|date:"M d, Y" }}</div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row g-3">
+<div class="row g-3 mb-4">
     <div class="col-md-4">
-        <div class="card">
+        <div class="card metric-card">
             <div class="card-body">
-                <div class="text-muted small">Workouts</div>
-                <div class="display-6 fw-bold">{{ workout_count }}</div>
+                <div class="metric-top"><span>Workouts</span><span class="metric-icon"><i data-lucide="dumbbell"></i></span></div>
+                <div class="metric-value">{{ workout_count }}</div>
+                <p class="metric-note">Logged sessions</p>
             </div>
         </div>
     </div>
 
     <div class="col-md-4">
-        <div class="card">
+        <div class="card metric-card accent-blue">
             <div class="card-body">
-                <div class="text-muted small">Body Metrics</div>
-                <div class="display-6 fw-bold">{{ metric_count }}</div>
+                <div class="metric-top"><span>Body Metrics</span><span class="metric-icon"><i data-lucide="scale"></i></span></div>
+                <div class="metric-value">{{ metric_count }}</div>
+                <p class="metric-note">Tracked entries</p>
             </div>
         </div>
     </div>
 
     <div class="col-md-4">
-        <div class="card">
+        <div class="card metric-card accent-coral">
             <div class="card-body">
-                <div class="text-muted small">Active Goals</div>
-                <div class="display-6 fw-bold">{{ active_goal_count }}</div>
+                <div class="metric-top"><span>Active Goals</span><span class="metric-icon"><i data-lucide="target"></i></span></div>
+                <div class="metric-value">{{ active_goal_count }}</div>
+                <p class="metric-note">Open targets</p>
             </div>
         </div>
     </div>
 </div>
 
-<div class="mt-4">
-    <h2 class="h5 mb-3">Export Data</h2>
-
-    <div class="d-flex gap-2">
-        <a href="{% url 'tracker:export_workouts_csv' %}" class="btn btn-outline-primary">Export Workouts CSV</a>
-        <a href="{% url 'tracker:export_metrics_csv' %}" class="btn btn-outline-primary">Export Metrics CSV</a>
+<div class="section-heading">
+    <div>
+        <h2 class="h5">Export Data</h2>
+        <p class="mb-0">Download your workouts and body metrics as CSV files.</p>
     </div>
+</div>
+
+<div class="action-stack">
+    <a href="{% url 'tracker:export_workouts_csv' %}" class="action-tile">
+        <span><i data-lucide="download"></i> Export Workouts CSV</span>
+        <i data-lucide="arrow-up-right"></i>
+    </a>
+    <a href="{% url 'tracker:export_metrics_csv' %}" class="action-tile">
+        <span><i data-lucide="download"></i> Export Metrics CSV</span>
+        <i data-lucide="arrow-up-right"></i>
+    </a>
 </div>
 {% endblock %}

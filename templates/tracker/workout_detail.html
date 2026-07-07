@@ -4,67 +4,87 @@
 
 {% block content %}
 <div class="mb-4">
-    <a href="{% url 'tracker:workout_list' %}" class="btn btn-outline-secondary btn-sm">Back to workouts</a>
+    <a href="{% url 'tracker:workout_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i data-lucide="arrow-left"></i><span>Back to workouts</span>
+    </a>
 </div>
 
-<div class="card mb-4">
-    <div class="card-body">
-        <h1 class="h3">{{ workout.title }}</h1>
-        <p class="text-muted mb-2">{{ workout.date }}</p>
-
-        {% if workout.notes %}
-            <p>{{ workout.notes }}</p>
-        {% endif %}
-
-        <div class="d-flex gap-2 mt-3">
-            <a href="{% url 'tracker:workout_update' workout.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
-            <a href="{% url 'tracker:workout_duplicate' workout.pk %}" class="btn btn-outline-secondary btn-sm">Duplicate</a>
-            <a href="{% url 'tracker:workout_delete' workout.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+<div class="profile-banner mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <span class="profile-avatar"><i data-lucide="dumbbell"></i></span>
+        <div>
+            <div class="eyebrow">Workout detail</div>
+            <h1 class="h3 mb-1">{{ workout.title }}</h1>
+            <p class="text-muted mb-0">{{ workout.date }}</p>
+            {% if workout.notes %}
+                <p class="mb-0 mt-2">{{ workout.notes }}</p>
+            {% endif %}
         </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'tracker:workout_update' workout.pk %}" class="btn btn-outline-primary btn-sm">
+            <i data-lucide="pencil"></i><span>Edit</span>
+        </a>
+        <a href="{% url 'tracker:workout_duplicate' workout.pk %}" class="btn btn-outline-secondary btn-sm">
+            <i data-lucide="copy"></i><span>Duplicate</span>
+        </a>
+        <a href="{% url 'tracker:workout_delete' workout.pk %}" class="btn btn-outline-danger btn-sm">
+            <i data-lucide="trash-2"></i><span>Delete</span>
+        </a>
     </div>
 </div>
 
 <div class="row g-3 mb-4">
     <div class="col-md-3">
-        <div class="card">
+        <div class="card metric-card">
             <div class="card-body">
-                <div class="text-muted small">Sets</div>
-                <div class="h3 mb-0">{{ total_sets }}</div>
+                <div class="metric-top"><span>Sets</span><span class="metric-icon"><i data-lucide="layers-3"></i></span></div>
+                <div class="metric-value">{{ total_sets }}</div>
+                <p class="metric-note">Total sets</p>
             </div>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card">
+        <div class="card metric-card accent-gold">
             <div class="card-body">
-                <div class="text-muted small">Volume</div>
-                <div class="h3 mb-0">{{ total_volume|floatformat:0 }} kg</div>
+                <div class="metric-top"><span>Volume</span><span class="metric-icon"><i data-lucide="bar-chart-3"></i></span></div>
+                <div class="metric-value">{{ total_volume|floatformat:0 }}</div>
+                <p class="metric-note">kg lifted</p>
             </div>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card">
+        <div class="card metric-card accent-blue">
             <div class="card-body">
-                <div class="text-muted small">Duration</div>
-                <div class="h3 mb-0">{{ total_duration }} min</div>
+                <div class="metric-top"><span>Duration</span><span class="metric-icon"><i data-lucide="timer"></i></span></div>
+                <div class="metric-value">{{ total_duration }}</div>
+                <p class="metric-note">minutes</p>
             </div>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card">
+        <div class="card metric-card accent-coral">
             <div class="card-body">
-                <div class="text-muted small">Distance</div>
-                <div class="h3 mb-0">{{ total_distance|floatformat:2 }} km</div>
+                <div class="metric-top"><span>Distance</span><span class="metric-icon"><i data-lucide="route"></i></span></div>
+                <div class="metric-value">{{ total_distance|floatformat:2 }}</div>
+                <p class="metric-note">km covered</p>
             </div>
         </div>
     </div>
 </div>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h5 mb-0">Sets</h2>
-    <a href="{% url 'tracker:workout_set_create' workout.pk %}" class="btn btn-primary btn-sm">Add Set</a>
+<div class="section-heading">
+    <div>
+        <h2 class="h5">Sets</h2>
+        <p class="mb-0">Exercises and performance details for this session.</p>
+    </div>
+    <a href="{% url 'tracker:workout_set_create' workout.pk %}" class="btn btn-primary btn-sm">
+        <i data-lucide="plus"></i><span>Add Set</span>
+    </a>
 </div>
 
 {% if workout.sets.all %}
@@ -84,17 +104,23 @@
             <tbody>
                 {% for set in workout.sets.all %}
                     <tr>
-                        <td>{{ set.exercise.name }}</td>
+                        <td><strong>{{ set.exercise.name }}</strong></td>
                         <td>{{ set.set_number }}</td>
                         <td>{{ set.reps|default:"-" }}</td>
                         <td>{% if set.weight_kg %}{{ set.weight_kg }} kg{% else %}-{% endif %}</td>
                         <td>{% if set.duration_minutes %}{{ set.duration_minutes }} min{% else %}-{% endif %}</td>
                         <td>{% if set.distance_km %}{{ set.distance_km }} km{% else %}-{% endif %}</td>
                         <td>
-                            <div class="d-flex gap-2">
-                                <a href="{% url 'tracker:workout_set_update' set.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
-                                <a href="{% url 'tracker:workout_set_delete' set.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
-                                <a href="{% url 'tracker:workout_save_as_template' workout.pk %}" class="btn btn-outline-success btn-sm">Save as Template</a>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="{% url 'tracker:workout_set_update' set.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i data-lucide="pencil"></i><span>Edit</span>
+                                </a>
+                                <a href="{% url 'tracker:workout_set_delete' set.pk %}" class="btn btn-outline-danger btn-sm">
+                                    <i data-lucide="trash-2"></i><span>Delete</span>
+                                </a>
+                                <a href="{% url 'tracker:workout_save_as_template' workout.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i data-lucide="clipboard-plus"></i><span>Template</span>
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -103,6 +129,9 @@
         </table>
     </div>
 {% else %}
-    <div class="alert alert-info">No sets added for this workout yet.</div>
+    <div class="empty-state">
+        <i data-lucide="list-plus"></i>
+        <span>No sets added for this workout yet.</span>
+    </div>
 {% endif %}
 {% endblock %}

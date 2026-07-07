@@ -4,60 +4,118 @@
 
 {% block content %}
 <div class="mb-4">
-    <a href="{% url 'tracker:exercise_list' %}" class="btn btn-outline-secondary btn-sm">Back to exercises</a>
+    <a href="{% url 'tracker:exercise_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i data-lucide="arrow-left"></i><span>Back to exercises</span>
+    </a>
 </div>
 
-<h1 class="h3 mb-1">{{ exercise.name }}</h1>
-<p class="text-muted">{{ exercise.get_muscle_group_display }}</p>
+<div class="page-heading">
+    <div>
+        <div class="eyebrow">{{ exercise.get_muscle_group_display }}</div>
+        <h1 class="h3">{{ exercise.name }}</h1>
+        <p class="mb-0">Best numbers and recent set history for this movement.</p>
+    </div>
+</div>
 
 <div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Sets</div><div class="h3 mb-0">{{ total_sets }}</div></div></div></div>
-    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Best Weight</div><div class="h3 mb-0">{{ best_weight|default:"-" }} kg</div></div></div></div>
-    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Best Reps</div><div class="h3 mb-0">{{ best_reps|default:"-" }}</div></div></div></div>
-    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Volume</div><div class="h3 mb-0">{{ total_volume|floatformat:0 }} kg</div></div></div></div>
+    <div class="col-md-3">
+        <div class="card metric-card">
+            <div class="card-body">
+                <div class="metric-top"><span>Sets</span><span class="metric-icon"><i data-lucide="layers-3"></i></span></div>
+                <div class="metric-value">{{ total_sets }}</div>
+                <p class="metric-note">Tracked sets</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card metric-card accent-gold">
+            <div class="card-body">
+                <div class="metric-top"><span>Best Weight</span><span class="metric-icon"><i data-lucide="trophy"></i></span></div>
+                <div class="metric-value">{{ best_weight|default:"-" }}</div>
+                <p class="metric-note">kg top set</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card metric-card accent-coral">
+            <div class="card-body">
+                <div class="metric-top"><span>Best Reps</span><span class="metric-icon"><i data-lucide="repeat-2"></i></span></div>
+                <div class="metric-value">{{ best_reps|default:"-" }}</div>
+                <p class="metric-note">rep max</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card metric-card accent-blue">
+            <div class="card-body">
+                <div class="metric-top"><span>Volume</span><span class="metric-icon"><i data-lucide="bar-chart-3"></i></span></div>
+                <div class="metric-value">{{ total_volume|floatformat:0 }}</div>
+                <p class="metric-note">kg total</p>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="card mb-4">
+<div class="card chart-card mb-4">
     <div class="card-body">
-        <h2 class="h5 mb-3">Progress</h2>
+        <div class="chart-title">
+            <div>
+                <h2>Progress</h2>
+                <span>Best weight over time</span>
+            </div>
+            <i data-lucide="trending-up"></i>
+        </div>
 
         {% if progress_values %}
-            <canvas id="exerciseProgressChart" height="100"></canvas>
+            <div class="chart-frame">
+                <canvas id="exerciseProgressChart"></canvas>
+            </div>
         {% else %}
-            <div class="alert alert-info mb-0">
-                Add weighted sets to see progress for this exercise.
+            <div class="empty-state">
+                <i data-lucide="bar-chart-3"></i>
+                <span>Add weighted sets to see progress for this exercise.</span>
             </div>
         {% endif %}
     </div>
 </div>
 
-<h2 class="h5 mb-3">Recent History</h2>
+<div class="section-heading">
+    <div>
+        <h2 class="h5">Recent History</h2>
+        <p class="mb-0">The last tracked sets for this exercise.</p>
+    </div>
+</div>
 
 {% if sets %}
-    <table class="table table-striped align-middle">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Workout</th>
-                <th>Set</th>
-                <th>Reps</th>
-                <th>Weight</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for set in sets %}
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
                 <tr>
-                    <td>{{ set.workout.date }}</td>
-                    <td><a href="{% url 'tracker:workout_detail' set.workout.pk %}">{{ set.workout.title }}</a></td>
-                    <td>{{ set.set_number }}</td>
-                    <td>{{ set.reps|default:"-" }}</td>
-                    <td>{% if set.weight_kg %}{{ set.weight_kg }} kg{% else %}-{% endif %}</td>
+                    <th>Date</th>
+                    <th>Workout</th>
+                    <th>Set</th>
+                    <th>Reps</th>
+                    <th>Weight</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for set in sets %}
+                    <tr>
+                        <td>{{ set.workout.date }}</td>
+                        <td><a href="{% url 'tracker:workout_detail' set.workout.pk %}">{{ set.workout.title }}</a></td>
+                        <td>{{ set.set_number }}</td>
+                        <td>{{ set.reps|default:"-" }}</td>
+                        <td>{% if set.weight_kg %}{{ set.weight_kg }} kg{% else %}-{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% else %}
-    <div class="alert alert-info">No history yet for this exercise.</div>
+    <div class="empty-state">
+        <i data-lucide="history"></i>
+        <span>No history yet for this exercise.</span>
+    </div>
 {% endif %}
 
 {{ progress_labels|json_script:"progress-labels" }}
@@ -78,9 +136,30 @@
                 datasets: [{
                     label: "Best Weight kg",
                     data: progressValues,
-                    borderWidth: 2,
-                    tension: 0.3
+                    borderColor: "#0f7b63",
+                    backgroundColor: "rgba(15, 123, 99, 0.14)",
+                    fill: true,
+                    borderWidth: 3,
+                    pointRadius: 3,
+                    pointBackgroundColor: "#0f7b63",
+                    tension: 0.34
                 }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: "#68756f" }
+                    },
+                    y: {
+                        grid: { color: "rgba(23, 33, 30, 0.08)" },
+                        ticks: { color: "#68756f" }
+                    }
+                }
             }
         });
     }
