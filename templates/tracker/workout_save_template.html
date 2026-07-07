@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Save As Template | MiniFit{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="h3 mb-3">Save Workout As Template</h1>
+
+        <p>
+            Create a reusable template from
+            <strong>{{ workout.title }}</strong>?
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label" for="name">Template Name</label>
+                <input class="form-control" type="text" id="name" name="name" value="{{ workout.title }} Template">
+            </div>
+
+            <button class="btn btn-success" type="submit">Save Template</button>
+            <a href="{% url 'tracker:workout_detail' workout.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

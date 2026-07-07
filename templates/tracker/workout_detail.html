@@ -94,6 +94,7 @@
                             <div class="d-flex gap-2">
                                 <a href="{% url 'tracker:workout_set_update' set.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
                                 <a href="{% url 'tracker:workout_set_delete' set.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                                <a href="{% url 'tracker:workout_save_as_template' workout.pk %}" class="btn btn-outline-success btn-sm">Save as Template</a>
                             </div>
                         </td>
                     </tr>

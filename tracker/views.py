@@ -296,6 +296,39 @@ def workout_duplicate(request, pk):
     )
 
 @login_required
+def workout_save_as_template(request, pk):
+    workout = get_object_or_404(Workout, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        name = request.POST.get("name", "").strip() or workout.title
+
+        template = WorkoutTemplate.objects.create(
+            user=request.user,
+            name=name,
+            notes=workout.notes,
+        )
+
+        for workout_set in workout.sets.all():
+            WorkoutTemplateSet.objects.create(
+                template=template,
+                exercise=workout_set.exercise,
+                set_number=workout_set.set_number,
+                reps=workout_set.reps,
+                weight_kg=workout_set.weight_kg,
+                duration_minutes=workout_set.duration_minutes,
+                distance_km=workout_set.distance_km,
+            )
+
+        messages.success(request, "Template created from workout.")
+        return redirect("tracker:template_detail", pk=template.pk)
+
+    return render(
+        request,
+        "tracker/workout_save_template.html",
+        {"workout": workout},
+    )
+
+@login_required
 def workout_set_create(request, pk):
     workout = get_object_or_404(Workout, pk=pk, user=request.user)
 

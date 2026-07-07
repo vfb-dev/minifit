@@ -13,6 +13,7 @@ urlpatterns = [
     path("workouts/<int:pk>/delete/", views.workout_delete, name="workout_delete"),
     path("workouts/<int:pk>/duplicate/", views.workout_duplicate, name="workout_duplicate"),
     path("workouts/<int:pk>/", views.workout_detail, name="workout_detail"),
+    path("workouts/<int:pk>/save-template/", views.workout_save_as_template, name="workout_save_as_template"),
     path("templates/", views.template_list, name="template_list"),
     path("templates/add/", views.template_create, name="template_create"),
     path("templates/<int:pk>/edit/", views.template_update, name="template_update"),
