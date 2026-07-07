@@ -430,31 +430,6 @@ def template_start_workout(request, pk):
     )
 
 @login_required
-def template_set_create(request, pk):
-    template = get_object_or_404(WorkoutTemplate, pk=pk, user=request.user)
-
-    if request.method == "POST":
-        form = WorkoutTemplateSetForm(request.POST)
-        form.fields["exercise"].queryset = available_exercises_for_user(request.user)
-
-        if form.is_valid():
-            template_set = form.save(commit=False)
-            template_set.template = template
-            template_set.save()
-            messages.success(request, "Template set added successfully.")
-            return redirect("tracker:template_detail", pk=template.pk)
-    else:
-        next_set_number = template.sets.count() + 1
-        form = WorkoutTemplateSetForm(initial={"set_number": next_set_number})
-        form.fields["exercise"].queryset = available_exercises_for_user(request.user)
-
-    return render(
-        request,
-        "tracker/workout_template_set_form.html",
-        {"form": form, "template": template},
-    )
-
-@login_required
 def template_update(request, pk):
     template = get_object_or_404(WorkoutTemplate, pk=pk, user=request.user)
 
@@ -491,6 +466,85 @@ def template_delete(request, pk):
         request,
         "tracker/workout_template_confirm_delete.html",
         {"template": template},
+    )
+
+@login_required
+def template_set_create(request, pk):
+    template = get_object_or_404(WorkoutTemplate, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        form = WorkoutTemplateSetForm(request.POST)
+        form.fields["exercise"].queryset = available_exercises_for_user(request.user)
+
+        if form.is_valid():
+            template_set = form.save(commit=False)
+            template_set.template = template
+            template_set.save()
+            messages.success(request, "Template set added successfully.")
+            return redirect("tracker:template_detail", pk=template.pk)
+    else:
+        next_set_number = template.sets.count() + 1
+        form = WorkoutTemplateSetForm(initial={"set_number": next_set_number})
+        form.fields["exercise"].queryset = available_exercises_for_user(request.user)
+
+    return render(
+        request,
+        "tracker/workout_template_set_form.html",
+        {"form": form, "template": template},
+    )
+
+@login_required
+def template_set_update(request, pk):
+    template_set = get_object_or_404(
+        WorkoutTemplateSet,
+        pk=pk,
+        template__user=request.user,
+    )
+    template = template_set.template
+
+    if request.method == "POST":
+        form = WorkoutTemplateSetForm(request.POST, instance=template_set)
+        form.fields["exercise"].queryset = available_exercises_for_user(request.user)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Template set updated successfully.")
+            return redirect("tracker:template_detail", pk=template.pk)
+    else:
+        form = WorkoutTemplateSetForm(instance=template_set)
+        form.fields["exercise"].queryset = available_exercises_for_user(request.user)
+
+    return render(
+        request,
+        "tracker/workout_template_set_form.html",
+        {
+            "form": form,
+            "template": template,
+            "is_editing": True,
+        },
+    )
+
+@login_required
+def template_set_delete(request, pk):
+    template_set = get_object_or_404(
+        WorkoutTemplateSet,
+        pk=pk,
+        template__user=request.user,
+    )
+    template = template_set.template
+
+    if request.method == "POST":
+        template_set.delete()
+        messages.success(request, "Template set deleted successfully.")
+        return redirect("tracker:template_detail", pk=template.pk)
+
+    return render(
+        request,
+        "tracker/workout_template_set_confirm_delete.html",
+        {
+            "template_set": template_set,
+            "template": template,
+        },
     )
 
 @login_required

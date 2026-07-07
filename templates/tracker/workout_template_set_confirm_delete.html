@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Template Set | MiniFit{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="h3 mb-3">Delete Template Set</h1>
+
+        <p>
+            Delete <strong>{{ template_set.exercise.name }}</strong>
+            set {{ template_set.set_number }}
+            from <strong>{{ template.name }}</strong>?
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit">Yes, Delete</button>
+            <a href="{% url 'tracker:template_detail' template.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

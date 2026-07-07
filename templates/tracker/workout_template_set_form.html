@@ -9,12 +9,14 @@
 
 <div class="card">
     <div class="card-body">
-        <h1 class="h3 mb-4">Add Template Set</h1>
+        <h1 class="h3 mb-4">{% if is_editing %}Edit Template Set{% else %}Add Template Set{% endif %}</h1>
 
         <form method="post">
             {% csrf_token %}
             {{ form.as_p }}
-            <button class="btn btn-primary" type="submit">Save Set</button>
+            <button class="btn btn-primary" type="submit">
+                {% if is_editing %}Update Set{% else %}Save Set{% endif %}
+            </button>
         </form>
     </div>
 </div>
