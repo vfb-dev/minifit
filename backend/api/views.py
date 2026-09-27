@@ -14,7 +14,7 @@ from .serializers import (
 )
 from .pagination import ExercisePagination
 
-from django.db.models import Count, Sum, Max, F
+from django.db.models import Count, Sum, Max, F, Q
 from django.db.models.functions import TruncDay, TruncMonth, TruncYear
 from datetime import date, timedelta
 from django.utils import timezone
@@ -102,6 +102,12 @@ class ExerciseViewset(viewsets.ModelViewSet):
             .filter(user=self.request.user)
             .annotate(
                 set_count=Count("sets"),
+                cardio_count=Count(
+                    "sets", filter=Q(sets__workout_type=ExerciseSet.WorkoutType.CARDIO)
+                ),
+                strength_count=Count(
+                    "sets", filter=Q(sets__workout_type=ExerciseSet.WorkoutType.STRENGTH)
+                ),
                 last_logged_at=Max("sets__date"),
             )
         )
@@ -134,6 +140,8 @@ class ExerciseViewset(viewsets.ModelViewSet):
             "name",
             "primary_body_part",
             "secondary_body_parts",
+            "cardio_count",
+            "strength_count",
         )
 
         return Response(exercises)
@@ -163,24 +171,38 @@ class ExerciseSetViewset(viewsets.ModelViewSet):
             "id",
             "exercise",
             "exercise__name",
+            "workout_type",
+            "cardio_activity",
             "date",
             "weight",
             "reps",
+            "duration_minutes",
+            "distance_km",
+            "calories_burned",
         )
 
         if search:
-            exercise_sets = exercise_sets.filter(exercise__name__icontains=search)
+            exercise_sets = exercise_sets.filter(
+                Q(exercise__name__icontains=search)
+                | Q(cardio_activity__icontains=search)
+            )
 
         grouped = {}
 
         for exercise_set in exercise_sets:
-            key = (exercise_set.exercise_id, exercise_set.date.date())
+            name = exercise_set.exercise.name if exercise_set.exercise_id else exercise_set.cardio_activity
+            key = (
+                exercise_set.workout_type,
+                exercise_set.exercise_id or name,
+                exercise_set.date.date(),
+            )
 
             if key not in grouped:
                 grouped[key] = {
-                    "group_id": f"{exercise_set.exercise_id}-{exercise_set.date.date()}",
+                    "group_id": f"{exercise_set.workout_type}-{key[1]}-{exercise_set.date.date()}",
                     "exercise": exercise_set.exercise_id,
-                    "name": exercise_set.exercise.name,
+                    "name": name,
+                    "workout_type": exercise_set.workout_type,
                     "date": exercise_set.date.strftime("%b %d"), 
                     "sets": 0 , 
                     "exercises":[]}
@@ -189,10 +211,15 @@ class ExerciseSetViewset(viewsets.ModelViewSet):
             grouped[key]["exercises"].append({
                 "id": exercise_set.id,
                 "exercise": exercise_set.exercise_id,
-                "name": exercise_set.exercise.name,
+                "name": name,
+                "workout_type": exercise_set.workout_type,
                 "date": exercise_set.date,
                 "weight": exercise_set.weight,
                 "reps": exercise_set.reps,
+                "cardio_activity": exercise_set.cardio_activity,
+                "duration_minutes": exercise_set.duration_minutes,
+                "distance_km": exercise_set.distance_km,
+                "calories_burned": exercise_set.calories_burned,
             })
 
             for group in grouped.values():
@@ -214,8 +241,16 @@ class ExerciseSetViewset(viewsets.ModelViewSet):
         exercise = request.query_params.get("exercise")
         metric = request.query_params.get("metric", "volume")
         period  = request.query_params.get("period", "30D")
+        workout_type = request.query_params.get("workout_type", "strength")
 
-        queryset = self.get_queryset()
+        valid_metrics = {
+            "strength": {"volume", "weight", "reps"},
+            "cardio": {"duration", "distance", "calories"},
+        }
+        if metric not in valid_metrics.get(workout_type, set()):
+            return Response({"detail": "Invalid workout type or metric."}, status=400)
+
+        queryset = self.get_queryset().filter(workout_type=workout_type)
 
         # filter exercise
         if exercise:
@@ -245,6 +280,12 @@ class ExerciseSetViewset(viewsets.ModelViewSet):
             queryset = queryset.values("group_date").annotate(value=Max("weight"))
         elif metric == "reps":
             queryset = queryset.values("group_date").annotate(value=Sum("reps"))
+        elif metric == "duration":
+            queryset = queryset.values("group_date").annotate(value=Sum("duration_minutes"))
+        elif metric == "distance":
+            queryset = queryset.filter(distance_km__isnull=False).values("group_date").annotate(value=Sum("distance_km"))
+        elif metric == "calories":
+            queryset = queryset.filter(calories_burned__isnull=False).values("group_date").annotate(value=Sum("calories_burned"))
 
         short_label_format = ""
         if period in ["7D", "30D", "90D"]:

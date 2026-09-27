@@ -1,6 +1,7 @@
 "use client";
 
-import { CalendarClock, Hash, Loader2, Scale, X } from "lucide-react";
+import Link from "next/link";
+import { CalendarClock, Hash, Loader2, Scale, Timer, Route, X } from "lucide-react";
 import { useEffect, useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ import {
 
 import { useModalStore } from "@/store/modalStore";
 
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -32,18 +33,33 @@ import { getExerciseOptions, type Exercise } from "@/services/exercises";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { translations } from "@/lib/translations";
 import { useLanguageStore } from "@/store/languageStore";
+import { getWorkoutExercises } from "@/lib/workoutExercises";
 
 type Translation = (typeof translations)[keyof typeof translations];
 
 function createExerciseSetSchema(t: Translation) {
   return z.object({
+    workout_type: z.enum(["strength", "cardio"]),
     date: z.string().min(1, t.common.required),
-    exercise: z.string().min(1, t.dashboard.exerciseModal.selectExercise),
-    reps: z.number().min(1, t.dashboard.exerciseModal.minimumOneRep),
-    weight: z
-      .number()
-      .min(0, t.dashboard.exerciseModal.mustBePositive)
-      .max(9999, t.dashboard.exerciseModal.maxWeight),
+    exercise: z.string(),
+    reps: z.number().optional(),
+    weight: z.number().optional(),
+    duration_minutes: z.number().optional(),
+    distance_km: z.number().optional(),
+    calories_burned: z.number().optional(),
+  }).superRefine((value, context) => {
+    const m = t.dashboard.exerciseModal;
+    if (value.workout_type === "cardio") {
+      if (!value.exercise) context.addIssue({ code: "custom", path: ["exercise"], message: m.selectExercise });
+      if (!value.duration_minutes || value.duration_minutes < 1) context.addIssue({ code: "custom", path: ["duration_minutes"], message: m.durationRequired });
+      if (value.distance_km !== undefined && value.distance_km < 0) context.addIssue({ code: "custom", path: ["distance_km"], message: m.distanceInvalid });
+      if (value.calories_burned !== undefined && value.calories_burned < 0) context.addIssue({ code: "custom", path: ["calories_burned"], message: m.caloriesInvalid });
+    } else {
+      if (!value.exercise) context.addIssue({ code: "custom", path: ["exercise"], message: m.selectExercise });
+      if (!value.reps || value.reps < 1) context.addIssue({ code: "custom", path: ["reps"], message: m.minimumOneRep });
+      if (value.weight === undefined || value.weight < 0) context.addIssue({ code: "custom", path: ["weight"], message: m.mustBePositive });
+      if (value.weight !== undefined && value.weight > 9999) context.addIssue({ code: "custom", path: ["weight"], message: m.maxWeight });
+    }
   });
 }
 
@@ -99,17 +115,43 @@ export function EditExerciseModal({ selectedExercise }: EditModalProps) {
     return matchingExercise ? String(matchingExercise.id) : "";
   }, [exerciseOptions, selectedExercise]);
 
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      workout_type: "strength",
+      date: "",
+      exercise: "",
+      reps: 1,
+      weight: 0,
+    },
+  });
+  const workoutType = useWatch({ control, name: "workout_type" });
+  const availableExercises = useMemo(
+    () => getWorkoutExercises(exerciseOptions, workoutType),
+    [exerciseOptions, workoutType],
+  );
+
   const exerciseSelectOptions = useMemo(() => {
     if (!selectedExercise || !selectedExerciseId) {
-      return exerciseOptions;
+      return availableExercises;
     }
 
-    const hasSelectedExercise = exerciseOptions.some(
+    if (selectedExercise.workout_type !== workoutType) return availableExercises;
+
+    const hasSelectedExercise = availableExercises.some(
       (exercise) => String(exercise.id) === selectedExerciseId,
     );
 
     if (hasSelectedExercise) {
-      return exerciseOptions;
+      return availableExercises;
     }
 
     return [
@@ -119,36 +161,33 @@ export function EditExerciseModal({ selectedExercise }: EditModalProps) {
         primary_body_part: "",
         secondary_body_parts: [],
       },
-      ...exerciseOptions,
+      ...availableExercises,
     ];
-  }, [exerciseOptions, selectedExercise, selectedExerciseId]);
-
-  const {
-    control,
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      date: "",
-      exercise: "",
-      reps: 0,
-      weight: 0,
-    },
-  });
+  }, [availableExercises, selectedExercise, selectedExerciseId, workoutType]);
 
   useEffect(() => {
-    if (editModal && selectedExercise && selectedExerciseId) {
+    if (editModal && selectedExercise) {
       reset({
+        workout_type: selectedExercise.workout_type,
         exercise: selectedExerciseId,
-        reps: selectedExercise.reps,
-        weight: Number(selectedExercise.weight),
+        reps: selectedExercise.reps ?? 1,
+        weight: selectedExercise.weight === null ? 0 : Number(selectedExercise.weight),
+        duration_minutes: selectedExercise.duration_minutes ?? undefined,
+        distance_km: selectedExercise.distance_km === null ? undefined : Number(selectedExercise.distance_km),
+        calories_burned: selectedExercise.calories_burned ?? undefined,
         date: selectedExercise.date.slice(0, 16),
       });
     }
   }, [editModal, selectedExercise, selectedExerciseId, reset]);
+
+  useEffect(() => {
+    if (!editModal || !exerciseOptions.length) return;
+    const selected = getValues("exercise");
+    if (!exerciseSelectOptions.some((exercise) => String(exercise.id) === selected)) {
+      const nextId = String(exerciseSelectOptions[0]?.id ?? "");
+      if (selected !== nextId) setValue("exercise", nextId);
+    }
+  }, [editModal, exerciseOptions, exerciseSelectOptions, getValues, setValue]);
 
   const updateMutation = useMutation({
     mutationFn: ({ id, exerciseData }: UpdateExerciseData) =>
@@ -166,6 +205,7 @@ export function EditExerciseModal({ selectedExercise }: EditModalProps) {
       await queryClient.invalidateQueries({
         queryKey: ["exercises"],
       });
+      await queryClient.invalidateQueries({ queryKey: ["exercise_options"] });
 
       await queryClient.invalidateQueries({
         queryKey: ["chart"],
@@ -185,7 +225,15 @@ export function EditExerciseModal({ selectedExercise }: EditModalProps) {
 
     updateMutation.mutate({
       id: selectedExercise.id,
-      exerciseData: {
+      exerciseData: formData.workout_type === "cardio" ? {
+        workout_type: "cardio",
+        exercise: Number(formData.exercise),
+        date: formData.date,
+        duration_minutes: formData.duration_minutes,
+        distance_km: formData.distance_km ?? null,
+        calories_burned: formData.calories_burned ?? null,
+      } : {
+        workout_type: "strength",
         exercise: Number(formData.exercise),
         date: formData.date,
         reps: formData.reps,
@@ -206,7 +254,7 @@ export function EditExerciseModal({ selectedExercise }: EditModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-exercise-title"
-        className="w-full max-w-md overflow-hidden rounded-t-3xl rounded-b-none border-zinc-200 bg-white shadow-2xl ring-1 ring-black/5 sm:rounded-2xl"
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-3xl rounded-b-none border-zinc-200 bg-white shadow-2xl ring-1 ring-black/5 sm:rounded-2xl"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <CardHeader className="border-b border-zinc-100 px-6 py-5">
@@ -237,6 +285,17 @@ export function EditExerciseModal({ selectedExercise }: EditModalProps) {
         <CardContent className="px-6 py-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label>{t.dashboard.exerciseModal.workoutType}</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["strength", "cardio"] as const).map((type) => (
+                    <Button key={type} type="button" variant={workoutType === type ? "default" : "outline"}
+                      className="h-11 cursor-pointer rounded-xl" onClick={() => setValue("workout_type", type)}>
+                      {t.dashboard.exerciseModal[type]}
+                    </Button>
+                  ))}
+                </div>
+              </div>
               <div className="grid gap-2">
                 <Label
                   htmlFor="date"
@@ -304,8 +363,14 @@ export function EditExerciseModal({ selectedExercise }: EditModalProps) {
                   </p>
                 )}
               </div>
+              {workoutType === "cardio" && !exerciseSelectOptions.length && (
+                <p className="text-sm text-zinc-500">
+                  {t.dashboard.exerciseModal.noCardioExercisesDescription}{" "}
+                  <Link className="underline" href="/exercises" onClick={() => handleEditModal(false)}>{t.dashboard.exerciseModal.manageExercises}</Link>
+                </p>
+              )}
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {workoutType === "strength" && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label
                     htmlFor="reps"
@@ -320,7 +385,7 @@ export function EditExerciseModal({ selectedExercise }: EditModalProps) {
                       type="number"
                       placeholder="12"
                       className="h-11 rounded-xl pl-10"
-                      {...register("reps", { valueAsNumber: true })}
+                      {...register("reps", { setValueAs: (value) => value === "" ? undefined : Number(value) })}
                     />
                   </div>
                   {errors.reps && (
@@ -346,7 +411,7 @@ export function EditExerciseModal({ selectedExercise }: EditModalProps) {
                       step="0.01"
                       max={9999}
                       className="h-11 rounded-xl pl-10"
-                      {...register("weight", { valueAsNumber: true })}
+                      {...register("weight", { setValueAs: (value) => value === "" ? undefined : Number(value) })}
                     />
                   </div>
                   {errors.weight && (
@@ -355,8 +420,28 @@ export function EditExerciseModal({ selectedExercise }: EditModalProps) {
                     </p>
                   )}
                 </div>
-              </div>
+              </div>}
+              {workoutType === "cardio" && <>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="grid gap-2">
+                    <Label htmlFor="duration_minutes">{t.dashboard.exerciseModal.duration}</Label>
+                    <div className="relative"><Timer className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" /><Input id="duration_minutes" type="number" min="1" className="h-11 rounded-xl pl-10" {...register("duration_minutes", { setValueAs: (value) => value === "" ? undefined : Number(value) })} /></div>
+                    {errors.duration_minutes && <p className="text-sm font-medium text-red-500">{errors.duration_minutes.message}</p>}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="distance_km">{t.dashboard.exerciseModal.distance}</Label>
+                    <div className="relative"><Route className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" /><Input id="distance_km" type="number" min="0" step="0.01" className="h-11 rounded-xl pl-10" {...register("distance_km", { setValueAs: (value) => value === "" ? undefined : Number(value) })} /></div>
+                    {errors.distance_km && <p className="text-sm font-medium text-red-500">{errors.distance_km.message}</p>}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="calories_burned">{t.dashboard.exerciseModal.calories}</Label>
+                    <Input id="calories_burned" type="number" min="0" className="h-11 rounded-xl" {...register("calories_burned", { setValueAs: (value) => value === "" ? undefined : Number(value) })} />
+                    {errors.calories_burned && <p className="text-sm font-medium text-red-500">{errors.calories_burned.message}</p>}
+                  </div>
+                </div>
+              </>}
             </div>
+            {updateMutation.isError && <p role="alert" className="text-sm text-red-600">{t.dashboard.exerciseModal.saveError}</p>}
 
             <div className="flex flex-col-reverse gap-3 border-t border-zinc-100 pt-5 sm:flex-row sm:justify-end">
               <Button
@@ -370,7 +455,7 @@ export function EditExerciseModal({ selectedExercise }: EditModalProps) {
 
               <Button
                 type="submit"
-                disabled={updateMutation.isPending}
+                disabled={updateMutation.isPending || !exerciseSelectOptions.length}
                 className="h-11 cursor-pointer rounded-xl bg-zinc-950 px-6 font-semibold text-white shadow-lg shadow-zinc-950/15 hover:bg-zinc-800"
               >
                 {updateMutation.isPending && (

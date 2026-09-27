@@ -103,7 +103,7 @@ class ExerciseSerializer(serializers.ModelSerializer):
 
 class ExerciseSetSerializer(serializers.ModelSerializer):
     formatted_date = serializers.SerializerMethodField()
-    name = serializers.CharField(source="exercise.name", read_only=True)
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = ExerciseSet
@@ -111,10 +111,15 @@ class ExerciseSetSerializer(serializers.ModelSerializer):
             "id",
             "exercise",
             "name",
+            "workout_type",
+            "cardio_activity",
             "date",
             "formatted_date",
             "reps",
             "weight",
+            "duration_minutes",
+            "distance_km",
+            "calories_burned",
             "created_at",
             "updated_at",
         ]
@@ -123,10 +128,68 @@ class ExerciseSetSerializer(serializers.ModelSerializer):
     def validate_exercise(self, value):
         request = self.context.get("request")
 
-        if request and value.user_id != request.user.id:
+        if value and request and value.user_id != request.user.id:
             raise serializers.ValidationError("Exercise not found.")
 
         return value
+
+    def validate(self, attrs):
+        workout_type = attrs.get(
+            "workout_type",
+            self.instance.workout_type if self.instance else ExerciseSet.WorkoutType.STRENGTH,
+        )
+
+        if workout_type == ExerciseSet.WorkoutType.CARDIO:
+            exercise = attrs.get(
+                "exercise", self.instance.exercise if self.instance else None
+            )
+            duration = attrs.get(
+                "duration_minutes", self.instance.duration_minutes if self.instance else None
+            )
+            distance = attrs.get(
+                "distance_km", self.instance.distance_km if self.instance else None
+            )
+            calories = attrs.get(
+                "calories_burned", self.instance.calories_burned if self.instance else None
+            )
+            if exercise is None:
+                raise serializers.ValidationError({"exercise": "Exercise is required."})
+            if not duration or duration < 1:
+                raise serializers.ValidationError({"duration_minutes": "Duration must be at least 1 minute."})
+            if distance is not None and distance < 0:
+                raise serializers.ValidationError({"distance_km": "Distance cannot be negative."})
+            if calories is not None and calories < 0:
+                raise serializers.ValidationError({"calories_burned": "Calories cannot be negative."})
+            attrs.update(
+                cardio_activity=exercise.name,
+                reps=None,
+                weight=None,
+            )
+        else:
+            exercise = attrs.get(
+                "exercise", self.instance.exercise if self.instance else None
+            )
+            reps = attrs.get("reps", self.instance.reps if self.instance else None)
+            weight = attrs.get("weight", self.instance.weight if self.instance else None)
+            if exercise is None:
+                raise serializers.ValidationError({"exercise": "Exercise is required."})
+            if reps is None or reps < 1:
+                raise serializers.ValidationError({"reps": "Reps must be at least 1."})
+            if weight is None or weight < 0:
+                raise serializers.ValidationError({"weight": "Weight cannot be negative."})
+            attrs.update(
+                cardio_activity="",
+                duration_minutes=None,
+                distance_km=None,
+                calories_burned=None,
+            )
+
+        return attrs
+
+    def get_name(self, obj):
+        if obj.workout_type == ExerciseSet.WorkoutType.CARDIO:
+            return obj.exercise.name if obj.exercise_id else obj.cardio_activity
+        return obj.exercise.name
 
     def get_formatted_date(self, obj):
         now = timezone.localtime()

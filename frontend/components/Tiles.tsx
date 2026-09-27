@@ -75,7 +75,7 @@ export function Tiles() {
       <CreateExerciseModal />
       <EditExerciseModal selectedExercise={selectedExercise} />
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 pb-28">
         {/* History Header */}
         <div className="flex flex-col gap-2 mb-2">
           <h3 className="text-lg font-semibold">History</h3>

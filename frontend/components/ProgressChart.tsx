@@ -1,6 +1,6 @@
 "use client";
 
-import { SlidersHorizontal, Dumbbell } from "lucide-react";
+import { SlidersHorizontal, Dumbbell, Activity } from "lucide-react";
 
 import { ResponsiveBar } from "@nivo/bar";
 
@@ -34,6 +34,7 @@ import { get_chart_data } from "@/services/chart";
 import { getExerciseOptions, type Exercise } from "@/services/exercises";
 import { translations } from "@/lib/translations";
 import { useLanguageStore } from "@/store/languageStore";
+import { getWorkoutExercises, type WorkoutType } from "@/lib/workoutExercises";
 
 const PERIOD_OPTIONS = ["7D", "30D", "90D", "1Y", "max"];
 
@@ -67,6 +68,7 @@ export function ProgressChart() {
   const t = translations[language].dashboard.chart;
 
   const [exerciseId, setExerciseId] = useState<string>("");
+  const [workoutType, setWorkoutType] = useState<WorkoutType>("strength");
   const [period, setPeriod] = useState<string>("30D");
   const [metric, setMetric] = useState<string>("volume");
 
@@ -74,29 +76,30 @@ export function ProgressChart() {
     queryKey: ["exercise_options"],
     queryFn: () => getExerciseOptions(),
   });
+  const availableExercises = getWorkoutExercises(exerciseOptions, workoutType);
 
-  const hasSelectedExercise = exerciseOptions.some(
+  const hasSelectedExercise = availableExercises.some(
     (exercise) => String(exercise.id) === exerciseId,
   );
   const selectedExerciseId = hasSelectedExercise
     ? exerciseId
-    : String(exerciseOptions[0]?.id ?? "");
-  const selectedExercise = exerciseOptions.find(
+    : String(availableExercises[0]?.id ?? "");
+  const selectedExercise = availableExercises.find(
     (exercise) => String(exercise.id) === selectedExerciseId,
   );
   const selectedExerciseName = selectedExercise?.name ?? "";
 
   const { data: chartData = [] } = useQuery<ChartData[]>({
-    queryKey: ["chart", selectedExerciseId, metric, period],
+    queryKey: ["chart", workoutType, selectedExerciseId, metric, period],
 
     queryFn: () =>
       get_chart_data({
+        workout_type: workoutType,
         exercise: selectedExerciseId,
         metric,
         period,
       }),
 
-    placeholderData: (previousData) => previousData,
     enabled: Boolean(selectedExerciseId),
   });
 
@@ -125,26 +128,34 @@ export function ProgressChart() {
       return index % 3 === 0;
     })
     .map((item) => item.label);
-  const selectedMetricLabel =
-    metric === "volume" ? t.volume : metric === "weight" ? t.weight : t.reps;
+  const selectedMetricLabel = {
+    volume: t.volume,
+    weight: t.weight,
+    reps: t.reps,
+    duration: t.duration,
+    distance: t.distance,
+    calories: t.calories,
+  }[metric as "volume" | "weight" | "reps" | "duration" | "distance" | "calories"];
+
+  function selectWorkoutType(type: WorkoutType) {
+    setWorkoutType(type);
+    setExerciseId("");
+    setMetric(type === "cardio" ? "duration" : "volume");
+  }
 
   const emptyState = (
     <div className="flex h-72 w-full flex-col items-center justify-center rounded-xl border border-dashed bg-zinc-50/50 px-4 text-center md:h-90 md:rounded-2xl">
       <div className="mb-4 rounded-full bg-white p-3 shadow-sm md:p-4">
-        <Dumbbell className="size-5 text-zinc-400 md:size-6" />
+        {workoutType === "cardio" ? <Activity className="size-5 text-zinc-400 md:size-6" /> : <Dumbbell className="size-5 text-zinc-400 md:size-6" />}
       </div>
 
       <h3 className="text-sm font-semibold text-zinc-900">{t.emptyTitle}</h3>
 
       <p className="mt-1 max-w-xs text-sm text-zinc-500">
-        {t.emptyDescription}
+        {workoutType === "cardio" && !availableExercises.length ? t.noCardioExercises : t.emptyDescription}
       </p>
     </div>
   );
-
-  if (!exerciseOptions.length) {
-    return emptyState;
-  }
 
   return (
     <>
@@ -153,9 +164,9 @@ export function ProgressChart() {
           <div className="min-w-0">
             <h3 className="text-lg font-semibold">{t.progress}</h3>
 
-            <p className="mt-1 truncate text-xs text-zinc-500 sm:max-w-sm">
+            {selectedExerciseName && <p className="mt-1 truncate text-xs text-zinc-500 sm:max-w-sm">
               {toTitleCase(selectedExerciseName)} - {selectedMetricLabel}
-            </p>
+            </p>}
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
@@ -208,11 +219,11 @@ export function ProgressChart() {
                       onValueChange={(value) => setExerciseId(value)}
                     >
                       <SelectTrigger className="w-full cursor-pointer">
-                        <SelectValue />
+                        <SelectValue placeholder={t.exercise} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          {exerciseOptions.map((exercise) => (
+                          {availableExercises.map((exercise) => (
                             <SelectItem
                               key={exercise.id}
                               value={String(exercise.id)}
@@ -236,9 +247,15 @@ export function ProgressChart() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value="volume">{t.volume}</SelectItem>
-                          <SelectItem value="weight">{t.weight}</SelectItem>
-                          <SelectItem value="reps">{t.reps}</SelectItem>
+                          {workoutType === "strength" ? <>
+                            <SelectItem value="volume">{t.volume}</SelectItem>
+                            <SelectItem value="weight">{t.weight}</SelectItem>
+                            <SelectItem value="reps">{t.reps}</SelectItem>
+                          </> : <>
+                            <SelectItem value="duration">{t.duration}</SelectItem>
+                            <SelectItem value="distance">{t.distance}</SelectItem>
+                            <SelectItem value="calories">{t.calories}</SelectItem>
+                          </>}
                         </SelectGroup>
                       </SelectContent>
                     </Select>
@@ -247,6 +264,15 @@ export function ProgressChart() {
               </PopoverContent>
             </Popover>
           </div>
+        </div>
+
+        <div className="flex gap-2" aria-label={t.workoutType}>
+          {(["strength", "cardio"] as const).map((type) => (
+            <Button key={type} type="button" size="sm" variant={workoutType === type ? "default" : "outline"}
+              className="cursor-pointer" onClick={() => selectWorkoutType(type)}>
+              {t[type]}
+            </Button>
+          ))}
         </div>
 
         {isMobile && (
@@ -396,6 +422,9 @@ export function ProgressChart() {
                   {metric === "volume" && t.trainingVolume}
                   {metric === "weight" && t.maxWeight}
                   {metric === "reps" && t.totalReps}
+                  {metric === "duration" && t.totalDuration}
+                  {metric === "distance" && t.totalDistance}
+                  {metric === "calories" && t.totalCalories}
                 </p>
 
                 {/* exercise */}

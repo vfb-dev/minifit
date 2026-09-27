@@ -93,6 +93,7 @@ export function HistoryTable() {
       await queryClient.invalidateQueries({
         queryKey: ["exercises"],
       });
+      await queryClient.invalidateQueries({ queryKey: ["exercise_options"] });
 
       await queryClient.invalidateQueries({
         queryKey: ["chart"],
@@ -132,9 +133,7 @@ export function HistoryTable() {
 
             <TableHead className="font-bold">{t.exercise}</TableHead>
 
-            <TableHead className="font-bold">{t.reps}</TableHead>
-
-            <TableHead className="font-bold">{t.weight}</TableHead>
+            <TableHead className="font-bold">{t.details}</TableHead>
 
             <TableHead className="font-bold text-right">{t.actions}</TableHead>
           </TableRow>
@@ -146,11 +145,14 @@ export function HistoryTable() {
               <TableRow key={exercise.id}>
                 <TableCell>{exercise.formatted_date}</TableCell>
 
-                <TableCell>{toTitleCase(exercise.name)}</TableCell>
+                <TableCell>
+                  <span className="block">{toTitleCase(exercise.name)}</span>
+                  <span className="text-xs text-zinc-500">{t[exercise.workout_type]}</span>
+                </TableCell>
 
-                <TableCell>{exercise.reps}</TableCell>
-
-                <TableCell>{exercise.weight}</TableCell>
+                <TableCell>{exercise.workout_type === "cardio"
+                  ? `${exercise.duration_minutes} ${t.minutesShort}${exercise.distance_km !== null ? ` · ${exercise.distance_km} ${t.kmShort}` : ""}${exercise.calories_burned !== null ? ` · ${exercise.calories_burned} kcal` : ""}`
+                  : `${exercise.reps} ${t.reps} · ${exercise.weight} kg`}</TableCell>
 
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -192,7 +194,7 @@ export function HistoryTable() {
           ) : (
             <TableRow>
               <TableCell
-                colSpan={5}
+                colSpan={4}
                 className="h-24 text-center text-muted-foreground"
               >
                 {t.empty}

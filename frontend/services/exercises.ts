@@ -8,6 +8,8 @@ export type Exercise = {
   primary_body_part: string;
   secondary_body_parts: string[];
   set_count?: number;
+  cardio_count?: number;
+  strength_count?: number;
   last_logged_at?: string | null;
   created_at?: string;
   updated_at?: string;

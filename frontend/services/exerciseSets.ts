@@ -4,18 +4,24 @@ import { apiUrl } from "@/lib/api";
 
 export type ExerciseSet = {
   id: number;
-  exercise: number;
+  exercise: number | null;
   name: string;
+  workout_type: "strength" | "cardio";
+  cardio_activity: string;
   date: string;
   formatted_date: string;
-  reps: number;
-  weight: number;
+  reps: number | null;
+  weight: number | string | null;
+  duration_minutes: number | null;
+  distance_km: number | string | null;
+  calories_burned: number | null;
 };
 
 export type ExerciseSetGroup = {
   group_id: string;
-  exercise: number;
+  exercise: number | null;
   name: string;
+  workout_type: "strength" | "cardio";
   date: string;
   sets: number;
   exercises: ExerciseSet[];
@@ -36,10 +42,15 @@ export type ExerciseSetHistoryResponse = {
 };
 
 export type ExerciseSetPayload = {
-  exercise: number;
+  workout_type: "strength" | "cardio";
+  exercise?: number | null;
   date: string;
-  reps: number;
-  weight: number;
+  reps?: number | null;
+  weight?: number | null;
+  cardio_activity?: string;
+  duration_minutes?: number | null;
+  distance_km?: number | null;
+  calories_burned?: number | null;
 };
 
 export async function getExerciseSets(page = 1) {

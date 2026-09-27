@@ -71,6 +71,7 @@ export function ExerciseTile({
       await queryClient.invalidateQueries({
         queryKey: ["exercises"],
       });
+      await queryClient.invalidateQueries({ queryKey: ["exercise_options"] });
 
       await queryClient.invalidateQueries({
         queryKey: ["chart"],
@@ -86,7 +87,11 @@ export function ExerciseTile({
     <div className="w-full bg-white rounded-lg shadow-sm p-2">
       <div className="flex h-full items-center gap-3">
         <div className="rounded-lg bg-zinc-100 p-3">
-          <Dumbbell className="size-6" />
+          {exercise.workout_type === "cardio" ? (
+            <span role="img" aria-label={t.cardio} className="grid size-6 place-items-center text-xl leading-none">❤️</span>
+          ) : (
+            <Dumbbell className="size-6" />
+          )}
         </div>
 
         <div>
@@ -94,7 +99,7 @@ export function ExerciseTile({
           <p className="text-sm text-zinc-400">{exercise.date}</p>
         </div>
 
-        <div className="ml-auto text-2xl font-bold">{exercise.sets}</div>
+        <div className="ml-auto text-sm font-semibold text-zinc-600">{exercise.workout_type === "cardio" ? t.cardio : `${exercise.sets} ${t.sets}`}</div>
 
         <button
           onClick={() => setisOpen((prev) => !prev)}
@@ -120,9 +125,9 @@ export function ExerciseTile({
             <TableRow>
               <TableHead className="text-zinc-500">{t.sets}</TableHead>
 
-              <TableHead className="text-zinc-500">{t.reps}</TableHead>
+              <TableHead className="text-zinc-500">{exercise.workout_type === "cardio" ? t.durationCalories : t.reps}</TableHead>
 
-              <TableHead className="text-zinc-500">{t.weight}</TableHead>
+              <TableHead className="text-zinc-500">{exercise.workout_type === "cardio" ? t.distance : t.weight}</TableHead>
 
               <TableHead className="text-zinc-500">{t.actions}</TableHead>
             </TableRow>
@@ -133,8 +138,8 @@ export function ExerciseTile({
               return (
                 <TableRow key={ex.id}>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>{ex.reps}</TableCell>
-                  <TableCell>{ex.weight}</TableCell>
+                  <TableCell>{ex.workout_type === "cardio" ? <>{ex.duration_minutes} {t.minutesShort}{ex.calories_burned !== null && <span className="block text-xs text-zinc-500">{ex.calories_burned} kcal</span>}</> : ex.reps}</TableCell>
+                  <TableCell>{ex.workout_type === "cardio" ? (ex.distance_km === null ? "—" : `${ex.distance_km} ${t.kmShort}`) : ex.weight}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

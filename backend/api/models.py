@@ -46,6 +46,10 @@ class Exercise(models.Model):
 
 
 class ExerciseSet(models.Model):
+    class WorkoutType(models.TextChoices):
+        STRENGTH = "strength", "Strength"
+        CARDIO = "cardio", "Cardio"
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -55,10 +59,19 @@ class ExerciseSet(models.Model):
         Exercise,
         on_delete=models.PROTECT,
         related_name="sets",
+        null=True,
+        blank=True,
     )
+    workout_type = models.CharField(
+        max_length=8, choices=WorkoutType.choices, default=WorkoutType.STRENGTH
+    )
+    cardio_activity = models.CharField(max_length=100, blank=True)
     date = models.DateTimeField()
-    reps = models.PositiveIntegerField()
-    weight = models.DecimalField(max_digits=6, decimal_places=2)
+    reps = models.PositiveIntegerField(null=True, blank=True)
+    weight = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    duration_minutes = models.PositiveIntegerField(null=True, blank=True)
+    distance_km = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    calories_burned = models.PositiveIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -66,6 +79,9 @@ class ExerciseSet(models.Model):
         ordering = ["-date"]
 
     def __str__(self):
+        if self.workout_type == self.WorkoutType.CARDIO:
+            name = self.exercise.name if self.exercise_id else self.cardio_activity
+            return f"{name} ({self.duration_minutes} min)"
         return f"{self.exercise.name} ({self.reps} reps @ {self.weight}kg)"
 
 

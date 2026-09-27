@@ -11,9 +11,12 @@ class ExerciseAdmin(admin.ModelAdmin):
 
 @admin.register(ExerciseSet)
 class ExerciseSetAdmin(admin.ModelAdmin):
-    list_display = ("exercise", "reps", "weight", "date", "user")
-    search_fields = ("exercise__name", "user__email", "user__username")
-    list_filter = ("date",)
+    list_display = (
+        "workout_type", "exercise", "cardio_activity", "reps", "weight",
+        "duration_minutes", "distance_km", "calories_burned", "date", "user",
+    )
+    search_fields = ("exercise__name", "cardio_activity", "user__email", "user__username")
+    list_filter = ("workout_type", "date")
 
 
 class WorkoutRoutineExerciseInline(admin.TabularInline):
