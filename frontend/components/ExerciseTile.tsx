@@ -1,6 +1,6 @@
 "use client";
 
-import { Dumbbell, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ChevronDown, Dumbbell, Heart, MoreHorizontal } from "lucide-react";
 
 import { useState } from "react";
 
@@ -86,11 +86,11 @@ export function ExerciseTile({
   return (
     <div className="w-full bg-white rounded-lg shadow-sm p-2">
       <div className="flex h-full items-center gap-3">
-        <div className="rounded-lg bg-zinc-100 p-3">
+        <div className={`rounded-lg p-3 ${exercise.workout_type === "cardio" ? "bg-rose-50" : "bg-indigo-50"}`}>
           {exercise.workout_type === "cardio" ? (
-            <span role="img" aria-label={t.cardio} className="grid size-6 place-items-center text-xl leading-none">❤️</span>
+            <Heart role="img" aria-label={t.cardio} className="size-6 fill-rose-500 text-rose-500" />
           ) : (
-            <Dumbbell className="size-6" />
+            <Dumbbell role="img" aria-label={t.strength} className="size-6 text-indigo-600" />
           )}
         </div>
 
