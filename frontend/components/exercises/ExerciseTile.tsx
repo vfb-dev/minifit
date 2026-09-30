@@ -1,4 +1,4 @@
-import { Dumbbell, Trash2, Pencil } from "lucide-react";
+import { Dumbbell, Heart, Trash2, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -57,7 +57,11 @@ export function ExerciseTile({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-zinc-100 sm:size-10 sm:rounded-xl">
-              <Dumbbell className="size-4 text-zinc-700 sm:size-5" />
+              {exercise.primary_body_part === "cardio" ? (
+                <Heart className="size-4 text-zinc-700 sm:size-5" />
+              ) : (
+                <Dumbbell className="size-4 text-zinc-700 sm:size-5" />
+              )}
             </div>
 
             <div className="min-w-0">

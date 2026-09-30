@@ -155,7 +155,7 @@ export default function ExercisesPage() {
 
   return (
     <ProtectedRoute>
-      <div className="w-full max-w-7xl px-6 py-8 md:py-10">
+      <div className="w-full max-w-7xl px-6 pt-8 pb-28 md:py-10">
         {/* HEADER */}
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
